@@ -71,37 +71,16 @@
 
 
 
-"<=" { process_token("LOREQ"); }
-">=" { process_token("MOREQ"); }
-":=" { process_token("ASSIGN"); }
-"+=" { process_token("PLUSEQ"); }
-"-=" { process_token("MINUSEQ"); }
-"/=" { process_token("DIVEQ"); }
-"*=" { process_token("TIMESEQ"); }
-"(*" { process_token("COMMENT1.1"); }
-"*)" { process_token("COMMENT1.2"); }
-"(." { process_token(""); } //????????
-".)" { process_token(""); } //????????
-"//" { process_token("COMMENTLINE"); }
-"+" { process_token("PLUS"); }
-"-" { process_token("MINUS"); }
-"*" { process_token("TIMES"); }
-"/" { process_token("DIV"); }
-"=" { process_token("EQ"); }
-">" { process_token("MT"); }
-"<" { process_token("LT"); }
-"[" { process_token("LEFT"); }
-"." { process_token("DOT"); }
-"," { process_token("COMMA"); }
-"(" { process_token("LPAR"); }
-")" { process_token("RPAR"); }
-":" { process_token("2DOT"); }
-"^" { process_token("EXP"); }
-"@" { process_token("AT"); }
-"{" { process_token("LKEY"); }
-"}" { process_token("RKEY"); }
-"$" { process_token("CIF"); }
-"#" { process_token("HASHTAG"); }
+":="   { process_token("ASSIGN"); }
+"="   { process_token("EQ"); }
+"<"   { process_token("LT"); }
+"+"   { process_token("PLUS"); }
+"-"   { process_token("MINUS"); }
+"*"   { process_token("TIMES"); }
+"/"   { printf("%d: / -> OVER\n", yylineno); }
+"("   { printf("%d: ( -> LPAR\n", yylineno); }
+")"   { printf("%d: ) -> RPAR\n", yylineno); }
+";"   { printf("%d: ; -> SEMI\n", yylineno); }
 
 [1-9][0-9]* | 0 { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
 [a-zA-Z_][a-zA-Z0-9_]*  { printf("%d: %s -> ID\n", yylineno, yytext); }
