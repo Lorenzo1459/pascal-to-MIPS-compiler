@@ -92,6 +92,7 @@
 ">" { process_token("MT"); }
 "<" { process_token("LT"); }
 "[" { process_token("LEFT"); }
+"]" { process_token("RIGHT"); }
 "." { process_token("DOT"); }
 "," { process_token("COMMA"); }
 "(" { process_token("LPAR"); }
