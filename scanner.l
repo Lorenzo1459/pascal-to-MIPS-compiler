@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 %option yylineno
 %{
     #include <stdio.h>
@@ -108,4 +109,3 @@
 (\"[^\"]*\") { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
 \{[^\}]*\} {  }
 (\n|.) {  }
-%%
