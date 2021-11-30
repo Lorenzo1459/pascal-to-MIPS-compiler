@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 %option yylineno
 %{
     #include <stdio.h>
@@ -7,63 +7,90 @@
 }
 %}
 
+A [aA]
+B [bB]
+C [cC]
+D [dD]
+E [eE]
+F [fF]
+G [gG]
+H [hH]
+I [iI]
+J [jJ]
+K [kK]
+L [lL]
+M [mM]
+N [nN]
+O [oO]
+P [pP]
+Q [qQ]
+R [rR]
+S [sS]
+T [tT]
+U [uU]
+V [vV]
+W [wW]
+X [xX]
+Y [yY]
+Z [zZ]
+
 %%
-"absolute"   { process_token("ABSOLUTE"); }
-"and"   { process_token("AND"); }
-"array"   { process_token("ARRAY"); }
-"asm"   { process_token("ASM"); }
-"begin"   { process_token("BEGIN"); }
-"break"   { process_token("BREAK"); }
-"case"   { process_token("CASE"); }
-"const"   { process_token("CONST"); }
-"constructor"   { process_token("CONSTRUCTOR"); }
-"continue"   { process_token("CONTINUE"); }
-"destructor"   { process_token("DESTRUCTOR"); }
-"div"   { process_token("DIV"); }
-"do"   { process_token("DO"); }
-"downto"   { process_token("DOWNTO"); }
-"else"   { process_token("ELSE"); }
-"end"   { process_token("END"); }
-"file"   { process_token("FILE"); }
-"for"   { process_token("FOR"); }
-"function"   { process_token("FUNCTIN"); }
-"goto"   { process_token("GOTO"); }
-"if"   { process_token("IF"); }
-"implementation"   { process_token("IMPLEMENTATION"); }
-"in"   { process_token("IN"); }
-"inherited"   { process_token("INHERITED"); }
-"inline"   { process_token("INLINE"); }
-"interface"   { process_token("INTERFACE"); }
-"label"   { process_token("LABEL"); }
-"mod"   { process_token("MOD"); }
-"nil"   { process_token("NIL"); }
-"not"   { process_token("NOT"); }
-"object"   { process_token("OBJECT"); }
-"of"   { process_token("OF"); }
-"on"   { process_token("ON"); }
-"operator"   { process_token("OPERATOR"); }
-"or"   { process_token("OR"); }
-"packed"   { process_token("PACKED"); }
-"procedure"   { process_token("PROCEDURE"); }
-"program"   { process_token("PROGRAM"); }
-"record"   { process_token("RECORD"); }
-"reintroduce"   { process_token("REINTRODUCE"); }
-"repeat"   { process_token("REPEAT"); }
-"self"   { process_token("SELF"); }
-"set"   { process_token("SET"); }
-"shl"   { process_token("SHL"); }
-"shr"   { process_token("SHR"); }
-"string"   { process_token("STRING"); }
-"then"   { process_token("THEN"); }
-"to"   { process_token("TO"); }
-"type"   { process_token("TYPE"); }
-"unit"   { process_token("UNIT"); }
-"until"   { process_token("UNTIL"); }
-"uses"   { process_token("USES"); }
-"var"   { process_token("VAR"); }
-"while"   { process_token("WHILE"); }
-"with"   { process_token("WITH"); }
-"xor"   { process_token("XOR"); }
+{A}{B}{S}{O}{L}{U}{T}{E}                     { process_token("ABSOLUTE"); }
+{A}{N}{D}                                    { process_token("AND"); }
+{A}{R}{R}{A}{Y}                              { process_token("ARRAY"); }
+{A}{S}{M}                                    { process_token("ASM"); }
+{B}{E}{G}{I}{N}                              { process_token("BEGIN"); }
+{B}{R}{E}{A}{K}                              { process_token("BREAK"); }
+{C}{A}{S}{E}                                 { process_token("CASE"); }
+{C}{O}{N}{S}{T}                              { process_token("CONST"); }
+{C}{O}{N}{S}{T}{R}{U}{C}{T}{O}{R}            { process_token("CONSTRUCTOR"); }
+{C}{O}{N}{T}{I}{N}{U}{E}                     { process_token("CONTINUE"); }
+{D}{E}{S}{T}{R}{U}{C}{T}{O}{R}               { process_token("DESTRUCTOR"); }
+{D}{I}{V}                                    { process_token("DIV"); }
+{D}{O}                                       { process_token("DO"); }
+{D}{O}{W}{N}{T}{O}                           { process_token("DOWNTO"); }
+{E}{L}{S}{E}                                 { process_token("ELSE"); }
+{E}{N}{D}                                    { process_token("END"); }
+{F}{I}{L}{E}                                 { process_token("FILE"); }
+{F}{O}{R}                                    { process_token("FOR"); }
+{F}{U}{N}{C}{T}{I}{O}{N}                     { process_token("FUNCTION"); }
+{G}{O}{T}{O}                                 { process_token("GOTO"); }
+{I}{F}                                       { process_token("IF"); }
+{I}{M}{P}{L}{E}{M}{E}{N}{T}{A}{T}{I}{O}{N}   { process_token("IMPLEMENTATION"); }
+{I}{N}                                       { process_token("IN"); }
+{I}{N}{H}{E}{R}{I}{T}{E}{D}                  { process_token("INHERITED"); }
+{I}{N}{L}{I}{N}{E}                           { process_token("INLINE"); }
+{I}{N}{T}{E}{R}{F}{A}{C}{E}                  { process_token("INTERFACE"); }
+{L}{A}{B}{E}{L}                              { process_token("LABEL"); }
+{M}{O}{D}                                    { process_token("MOD"); }
+{N}{I}{L}                                    { process_token("NIL"); }
+{N}{O}{T}                                    { process_token("NOT"); }
+{O}{B}{J}{E}{C}{T}                           { process_token("OBJECT"); }
+{O}{F}                                       { process_token("OF"); }
+{O}{N}                                       { process_token("ON"); }
+{O}{P}{E}{R}{A}{T}{O}{R}                     { process_token("OPERATOR"); }
+{O}{R}                                       { process_token("OR"); }
+{P}{A}{C}{K}{E}{D}                           { process_token("PACKED"); }
+{P}{R}{O}{C}{E}{D}{U}{R}{E}                  { process_token("PROCEDURE"); }
+{P}{R}{O}{G}{R}{A}{M}                        { process_token("PROGRAM"); }
+{R}{E}{C}{O}{R}{D}                           { process_token("RECORD"); }
+{R}{E}{I}{N}{T}{R}{O}{D}{U}{C}{E}            { process_token("REINTRODUCE"); }
+{R}{E}{P}{E}{A}{T}                           { process_token("REPEAT"); }
+{S}{E}{L}{F}                                 { process_token("SELF"); }
+{S}{E}{T}                                    { process_token("SET"); }
+{S}{H}{L}                                    { process_token("SHL"); }
+{S}{H}{R}                                    { process_token("SHR"); }
+{S}{T}{R}{I}{N}{G}                           { process_token("STRING"); }
+{T}{H}{E}{N}                                 { process_token("THEN"); }
+{T}{O}                                       { process_token("TO"); }
+{T}{Y}{P}{E}                                 { process_token("TYPE"); }
+{U}{N}{I}{T}                                 { process_token("UNIT"); }
+{U}{N}{T}{I}{L}                              { process_token("UNTIL"); }
+{U}{S}{E}{S}                                 { process_token("USES"); }
+{V}{A}{R}                                    { process_token("VAR"); }
+{W}{H}{I}{L}{E}                              { process_token("WHILE"); }
+{W}{I}{T}{H}                                 { process_token("WITH"); }
+{X}{O}{R}                                    { process_token("XOR"); }
 
 
 
@@ -110,3 +137,6 @@
 (\"[^\"]*\") { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
 \{[^\}]*\} {  }
 (\n|.) {  }
+
+
+%%
