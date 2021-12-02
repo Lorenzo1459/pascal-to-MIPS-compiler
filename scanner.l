@@ -1,8 +1,14 @@
 
+/* Flex output */
+%option outfile="scanner.c"
+%option noyywrap
+%option nounput
+%option noinput
+/* Auto increment variable yylineno every time a '\n' is read. */
 %option yylineno
 %{
-    #include <stdio.h>
-    void process_token(const char* tk) {
+#include <stdio.h>
+void process_token(const char* tk) {
     printf("%d: %s -> %s\n", yylineno, yytext, tk);
 }
 %}
@@ -34,7 +40,15 @@ X [xX]
 Y [yY]
 Z [zZ]
 
+ignore      [ \t\n]+
+comments    \{[^}]*\}
+
 %%
+
+{ignore}    { }
+{comments}  { }
+
+
 {A}{B}{S}{O}{L}{U}{T}{E}                     { process_token("ABSOLUTE"); }
 {A}{N}{D}                                    { process_token("AND"); }
 {A}{R}{R}{A}{Y}                              { process_token("ARRAY"); }
@@ -106,7 +120,7 @@ Z [zZ]
 "-=" { process_token("MINUSEQ"); }
 "/=" { process_token("DIVEQ"); }
 "*=" { process_token("TIMESEQ"); }
-"(*" { process_token("COMMENT1.1"); }
+"(*" { process_token("COMMENT1_1"); }
 "*)" { process_token("COMMENT1.2"); }
 "(." { process_token(""); } //????????
 ".)" { process_token(""); } //????????
@@ -131,12 +145,12 @@ Z [zZ]
 "}" { process_token("RKEY"); }
 "$" { process_token("CIF"); }
 "#" { process_token("HASHTAG"); }
+";"	{ process_token("SEMI"); }
 
 [1-9][0-9]* | 0 { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
+[0-9]+"."[0-9]+ { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
 [a-zA-Z_][a-zA-Z0-9_]*  { printf("%d: %s -> ID\n", yylineno, yytext); }
 (\"[^\"]*\") { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
-\{[^\}]*\} {  }
-(\n|.) {  }
 
 
 %%
