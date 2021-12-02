@@ -864,7 +864,7 @@ YY_DECL
 		}
 
 	{
-#line 46 "scanner.l"
+#line 47 "scanner.l"
 
 
 #line 871 "scanner.c"
@@ -937,484 +937,487 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 48 "scanner.l"
+#line 49 "scanner.l"
 { }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 49 "scanner.l"
+#line 50 "scanner.l"
 { }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 52 "scanner.l"
+#line 53 "scanner.l"
 { process_token("ABSOLUTE"); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 53 "scanner.l"
+#line 54 "scanner.l"
 { process_token("AND"); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 54 "scanner.l"
+#line 55 "scanner.l"
 { process_token("ARRAY"); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 55 "scanner.l"
+#line 56 "scanner.l"
 { process_token("ASM"); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 56 "scanner.l"
+#line 57 "scanner.l"
 { process_token("BEGIN"); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 57 "scanner.l"
+#line 58 "scanner.l"
 { process_token("BREAK"); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 58 "scanner.l"
+#line 59 "scanner.l"
 { process_token("CASE"); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 59 "scanner.l"
+#line 60 "scanner.l"
 { process_token("CONST"); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 60 "scanner.l"
+#line 61 "scanner.l"
 { process_token("CONSTRUCTOR"); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 61 "scanner.l"
+#line 62 "scanner.l"
 { process_token("CONTINUE"); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 62 "scanner.l"
+#line 63 "scanner.l"
 { process_token("DESTRUCTOR"); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 63 "scanner.l"
+#line 64 "scanner.l"
 { process_token("DIV"); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 64 "scanner.l"
+#line 65 "scanner.l"
 { process_token("DO"); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 65 "scanner.l"
+#line 66 "scanner.l"
 { process_token("DOWNTO"); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 66 "scanner.l"
+#line 67 "scanner.l"
 { process_token("ELSE"); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 67 "scanner.l"
+#line 68 "scanner.l"
 { process_token("END"); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 68 "scanner.l"
+#line 69 "scanner.l"
 { process_token("FILE"); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 69 "scanner.l"
+#line 70 "scanner.l"
 { process_token("FOR"); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 70 "scanner.l"
+#line 71 "scanner.l"
 { process_token("FUNCTION"); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 71 "scanner.l"
+#line 72 "scanner.l"
 { process_token("GOTO"); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 72 "scanner.l"
+#line 73 "scanner.l"
 { process_token("IF"); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 73 "scanner.l"
+#line 74 "scanner.l"
 { process_token("IMPLEMENTATION"); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 74 "scanner.l"
+#line 75 "scanner.l"
 { process_token("IN"); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 75 "scanner.l"
+#line 76 "scanner.l"
 { process_token("INHERITED"); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 76 "scanner.l"
+#line 77 "scanner.l"
 { process_token("INLINE"); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 77 "scanner.l"
+#line 78 "scanner.l"
 { process_token("INTERFACE"); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 78 "scanner.l"
+#line 79 "scanner.l"
 { process_token("LABEL"); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 79 "scanner.l"
+#line 80 "scanner.l"
 { process_token("MOD"); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 80 "scanner.l"
+#line 81 "scanner.l"
 { process_token("NIL"); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 81 "scanner.l"
+#line 82 "scanner.l"
 { process_token("NOT"); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 82 "scanner.l"
+#line 83 "scanner.l"
 { process_token("OBJECT"); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 83 "scanner.l"
+#line 84 "scanner.l"
 { process_token("OF"); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 84 "scanner.l"
+#line 85 "scanner.l"
 { process_token("ON"); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 85 "scanner.l"
+#line 86 "scanner.l"
 { process_token("OPERATOR"); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 86 "scanner.l"
+#line 87 "scanner.l"
 { process_token("OR"); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 87 "scanner.l"
+#line 88 "scanner.l"
 { process_token("PACKED"); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 88 "scanner.l"
+#line 89 "scanner.l"
 { process_token("PROCEDURE"); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 89 "scanner.l"
+#line 90 "scanner.l"
 { process_token("PROGRAM"); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 90 "scanner.l"
+#line 91 "scanner.l"
 { process_token("RECORD"); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 91 "scanner.l"
+#line 92 "scanner.l"
 { process_token("REINTRODUCE"); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 92 "scanner.l"
+#line 93 "scanner.l"
 { process_token("REPEAT"); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 93 "scanner.l"
+#line 94 "scanner.l"
 { process_token("SELF"); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 94 "scanner.l"
+#line 95 "scanner.l"
 { process_token("SET"); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 95 "scanner.l"
+#line 96 "scanner.l"
 { process_token("SHL"); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 96 "scanner.l"
+#line 97 "scanner.l"
 { process_token("SHR"); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 97 "scanner.l"
+#line 98 "scanner.l"
 { process_token("STRING"); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 98 "scanner.l"
+#line 99 "scanner.l"
 { process_token("THEN"); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 99 "scanner.l"
+#line 100 "scanner.l"
 { process_token("TO"); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 100 "scanner.l"
+#line 101 "scanner.l"
 { process_token("TYPE"); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 101 "scanner.l"
+#line 102 "scanner.l"
 { process_token("UNIT"); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 102 "scanner.l"
+#line 103 "scanner.l"
 { process_token("UNTIL"); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 103 "scanner.l"
+#line 104 "scanner.l"
 { process_token("USES"); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 104 "scanner.l"
+#line 105 "scanner.l"
 { process_token("VAR"); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 105 "scanner.l"
+#line 106 "scanner.l"
 { process_token("WHILE"); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 106 "scanner.l"
+#line 107 "scanner.l"
 { process_token("WITH"); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 107 "scanner.l"
+#line 108 "scanner.l"
 { process_token("XOR"); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 116 "scanner.l"
+#line 117 "scanner.l"
 { process_token("LOREQ"); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 117 "scanner.l"
+#line 118 "scanner.l"
 { process_token("MOREQ"); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 118 "scanner.l"
+#line 119 "scanner.l"
 { process_token("ASSIGN"); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 119 "scanner.l"
+#line 120 "scanner.l"
 { process_token("PLUSEQ"); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 120 "scanner.l"
+#line 121 "scanner.l"
 { process_token("MINUSEQ"); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 121 "scanner.l"
+#line 122 "scanner.l"
 { process_token("DIVEQ"); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 122 "scanner.l"
+#line 123 "scanner.l"
 { process_token("TIMESEQ"); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 123 "scanner.l"
+#line 124 "scanner.l"
 { process_token("COMMENT1_1"); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 124 "scanner.l"
+#line 125 "scanner.l"
 { process_token("COMMENT1.2"); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 125 "scanner.l"
+#line 126 "scanner.l"
 { process_token(""); } //????????
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 126 "scanner.l"
+#line 127 "scanner.l"
 { process_token(""); } //????????
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 127 "scanner.l"
+#line 128 "scanner.l"
 { process_token("COMMENTLINE"); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 128 "scanner.l"
+#line 129 "scanner.l"
 { process_token("PLUS"); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 129 "scanner.l"
+#line 130 "scanner.l"
 { process_token("MINUS"); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 130 "scanner.l"
+#line 131 "scanner.l"
 { process_token("TIMES"); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 131 "scanner.l"
+#line 132 "scanner.l"
 { process_token("DIV"); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 132 "scanner.l"
+#line 133 "scanner.l"
 { process_token("EQ"); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 133 "scanner.l"
+#line 134 "scanner.l"
 { process_token("MT"); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 134 "scanner.l"
+#line 135 "scanner.l"
 { process_token("LT"); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 135 "scanner.l"
+#line 136 "scanner.l"
 { process_token("LEFT"); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 136 "scanner.l"
+#line 137 "scanner.l"
 { process_token("RIGHT"); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 137 "scanner.l"
+#line 138 "scanner.l"
 { process_token("DOT"); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 138 "scanner.l"
+#line 139 "scanner.l"
 { process_token("COMMA"); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 139 "scanner.l"
+#line 140 "scanner.l"
 { process_token("LPAR"); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 140 "scanner.l"
+#line 141 "scanner.l"
 { process_token("RPAR"); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 141 "scanner.l"
+#line 142 "scanner.l"
 { process_token("2DOT"); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 142 "scanner.l"
+#line 143 "scanner.l"
 { process_token("EXP"); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 143 "scanner.l"
+#line 144 "scanner.l"
 { process_token("AT"); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 144 "scanner.l"
+#line 145 "scanner.l"
 { process_token("LKEY"); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 145 "scanner.l"
+#line 146 "scanner.l"
 { process_token("RKEY"); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 146 "scanner.l"
+#line 147 "scanner.l"
 { process_token("CIF"); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 147 "scanner.l"
+#line 148 "scanner.l"
 { process_token("HASHTAG"); }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 148 "scanner.l"
+#line 149 "scanner.l"
 { process_token("SEMI"); }
 	YY_BREAK
 case 92:
-#line 151 "scanner.l"
-case 93:
 YY_RULE_SETUP
 #line 151 "scanner.l"
+{ printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
+	YY_BREAK
+case 93:
+YY_RULE_SETUP
+#line 152 "scanner.l"
 { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 152 "scanner.l"
+#line 153 "scanner.l"
 { printf("%d: %s -> ID\n", yylineno, yytext); }
 	YY_BREAK
 case 95:
 /* rule 95 can match eol */
 YY_RULE_SETUP
-#line 153 "scanner.l"
+#line 154 "scanner.l"
 { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 156 "scanner.l"
+#line 157 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 1418 "scanner.c"
+#line 1421 "scanner.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2390,5 +2393,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 156 "scanner.l"
+#line 157 "scanner.l"
 

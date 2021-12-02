@@ -1,4 +1,4 @@
-program Test;
+pRogRam Test;
 type 
 	int = integer;
 var
@@ -17,7 +17,7 @@ end;
 
 begin	
 	a := 4.0;
-	b := 2;
+	b := 001;
 	c := 1;
 	max(a,b);
 	max(b,c);

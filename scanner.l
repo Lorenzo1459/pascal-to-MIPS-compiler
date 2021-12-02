@@ -40,6 +40,7 @@ X [xX]
 Y [yY]
 Z [zZ]
 
+
 ignore      [ \t\n]+
 comments    \{[^}]*\}
 
@@ -147,7 +148,7 @@ comments    \{[^}]*\}
 "#" { process_token("HASHTAG"); }
 ";"	{ process_token("SEMI"); }
 
-[1-9][0-9]* | 0 { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
+[1-9][0-9]* { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
 [0-9]+"."[0-9]+ { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
 [a-zA-Z_][a-zA-Z0-9_]*  { printf("%d: %s -> ID\n", yylineno, yytext); }
 (\"[^\"]*\") { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
