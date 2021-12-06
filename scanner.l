@@ -97,7 +97,6 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {S}{E}{T}                                    { process_token(SET); }
 {S}{H}{L}                                    { process_token(SHL); }
 {S}{H}{R}                                    { process_token(SHR); }
-{S}{T}{R}{I}{N}{G}                           { process_token(STRING); }
 {T}{H}{E}{N}                                 { process_token(THEN); }
 {T}{O}                                       { process_token(TO); }
 {T}{Y}{P}{E}                                 { process_token(TYPE); }
@@ -108,6 +107,11 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {W}{H}{I}{L}{E}                              { process_token(WHILE); }
 {W}{I}{T}{H}                                 { process_token(WITH); }
 {X}{O}{R}                                    { process_token(XOR); }
+
+{I}{N}{T}                                    { process_token(INT); }
+{R}{E}{A}{L}                                 { process_token(REAL); }
+{B}{O}{O}{L}{E}{A}{N}                        { process_token(BOOL); }
+{S}{T}{R}{I}{N}{G}                           { process_token(STRING); }
 
 "<="                                         { process_token(LOREQ); }
 ">="                                         { process_token(MOREQ); }
@@ -140,7 +144,7 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {F}{A}{L}{S}{E}                              { process_token(BOOL_TYPE); }
 
 {num}+                                       { process_token(INT_TYPE); }
-{num}+"."{num}+                              { process_token(FLOAT_TYPE); }
+{num}+"."{num}+                              { process_token(REAL_TYPE); }
 
 {alpha}{alphanum}*                           { process_token(ID_TYPE); }
 {string}                                     { process_token(STR_TYPE); }
