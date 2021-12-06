@@ -101,7 +101,11 @@ extern int yylineno;
 %token HASHTAG
 %token SEMI
 
-
+%token <bool_type> BOOL_TYPE
+%token <int_type> INT_TYPE
+%token <float_type> FLOAT_TYPE 
+%token <id_type> ID_TYPE 
+%token <str_type> STR_TYPE 
 
 
 // Primitive error handling.

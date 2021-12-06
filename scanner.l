@@ -135,7 +135,7 @@ string      \'([^\'\n]|\\n|\\\')*\'
 ","                                          { process_token(COMMA); }
 "("                                          { process_token(LPAR); }
 ")"                                          { process_token(RPAR); }
-":"                                          { process_token(TWODOT); }
+":"                                          { process_token(TWO_DOT); }
 "{"                                          { process_token(LKEY); }
 "}"                                          { process_token(RKEY); }
 ";"	                                         { process_token(SEMI); }
