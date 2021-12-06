@@ -8,9 +8,7 @@
 %option yylineno
 %{
 #include <stdio.h>
-void process_token(const char* tk) {
-    printf("%d: %s -> %s\n", yylineno, yytext, tk);
-}
+
 %}
 
 A [aA]
@@ -40,7 +38,9 @@ X [xX]
 Y [yY]
 Z [zZ]
 
-
+alpha [a-zA-Z_]
+num [0-9]
+alphanum [a-zA-Z_0-9]
 ignore      [ \t\n]+
 comments    \{[^}]*\}
 
@@ -108,15 +108,19 @@ comments    \{[^}]*\}
 {W}{I}{T}{H}                                 { process_token("WITH"); }
 {X}{O}{R}                                    { process_token("XOR"); }
 
+{T}{R}{U}{E}    {
+
+}
+
+{F}{A}{L}{S}{E}    {
+
+}
+
 "<=" { process_token("LOREQ"); }
 ">=" { process_token("MOREQ"); }
 ":=" { process_token("ASSIGN"); }
 "+=" { process_token("PLUSEQ"); }
-"-=" { process_token("MINUSEQ"); }
-"/=" { process_token("DIVEQ"); }
-"*=" { process_token("TIMESEQ"); }
-"(." { process_token("LPAR_DOT"); } 
-".)" { process_token("RPAR_DOT"); } 
+"^" { process_token("EXP"); }
 "+" { process_token("PLUS"); }
 "-" { process_token("MINUS"); }
 "*" { process_token("TIMES"); }
@@ -124,24 +128,24 @@ comments    \{[^}]*\}
 "=" { process_token("EQ"); }
 ">" { process_token("MT"); }
 "<" { process_token("LT"); }
-"[" { process_token("LEFT"); }
-"]" { process_token("RIGHT"); }
+
 "." { process_token("DOT"); }
 "," { process_token("COMMA"); }
-"(" { process_token("LPAR"); }
-")" { process_token("RPAR"); }
 ":" { process_token("2DOT"); }
 "^" { process_token("EXP"); }
-"@" { process_token("AT"); }
-"{" { process_token("LKEY"); }
-"}" { process_token("RKEY"); }
-"$" { process_token("CIF"); }
-"#" { process_token("HASHTAG"); }
 ";"	{ process_token("SEMI"); }
 
-[0-9]+ { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
-[0-9]+"."[0-9]+ { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
-[a-zA-Z_][a-zA-Z0-9_]*  { printf("%d: %s -> ID\n", yylineno, yytext); }
+"[" return LBRACKET;
+"]" return RBRACKET;
+"(" { process_token("LPAR"); }
+")" { process_token("RPAR"); }
+"{" { process_token("LKEY"); }
+"}" { process_token("RKEY"); }
 
+
+{num}+ { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
+{num}+"."{num}+ { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
+
+{alpha}{alphanum}*  { printf("%d: %s -> ID\n", yylineno, yytext); }
 
 %%
