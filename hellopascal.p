@@ -1,8 +1,14 @@
 pRogRam Test;
+//isso eh um commentario\n
+
+(*isso tbm 
+eh um //comentario
+comentario*)
 type 
-	int = integer;
+	int = integer; //outro comentario
 var
-	a : real;
+	a : real;{ comentario //comentariodentro
+	continua}
 	b : int;
 	c : int;
 	

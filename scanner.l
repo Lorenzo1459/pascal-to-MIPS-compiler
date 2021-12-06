@@ -48,7 +48,8 @@ comments    \{[^}]*\}
 
 {ignore}    { }
 {comments}  { }
-
+"//".* { }
+\(\*(.|[\r\n])*?\*\) { }
 
 {A}{B}{S}{O}{L}{U}{T}{E}                     { process_token("ABSOLUTE"); }
 {A}{N}{D}                                    { process_token("AND"); }
@@ -107,13 +108,6 @@ comments    \{[^}]*\}
 {W}{I}{T}{H}                                 { process_token("WITH"); }
 {X}{O}{R}                                    { process_token("XOR"); }
 
-
-
-
-
-
-
-
 "<=" { process_token("LOREQ"); }
 ">=" { process_token("MOREQ"); }
 ":=" { process_token("ASSIGN"); }
@@ -121,11 +115,8 @@ comments    \{[^}]*\}
 "-=" { process_token("MINUSEQ"); }
 "/=" { process_token("DIVEQ"); }
 "*=" { process_token("TIMESEQ"); }
-"(*" { process_token("COMMENT1_1"); }
-"*)" { process_token("COMMENT1.2"); }
-"(." { process_token(""); } //????????
-".)" { process_token(""); } //????????
-"//" { process_token("COMMENTLINE"); }
+"(." { process_token("LPAR_DOT"); } 
+".)" { process_token("RPAR_DOT"); } 
 "+" { process_token("PLUS"); }
 "-" { process_token("MINUS"); }
 "*" { process_token("TIMES"); }
@@ -151,7 +142,6 @@ comments    \{[^}]*\}
 [0-9]+ { printf("%d: %s -> INT_VAL\n", yylineno, yytext); }
 [0-9]+"."[0-9]+ { printf("%d: %s -> REAL_VAL\n", yylineno, yytext); }
 [a-zA-Z_][a-zA-Z0-9_]*  { printf("%d: %s -> ID\n", yylineno, yytext); }
-(\"[^\"]*\") { printf("%d: %s -> STR_VAL\n", yylineno, yytext); }
 
 
 %%
