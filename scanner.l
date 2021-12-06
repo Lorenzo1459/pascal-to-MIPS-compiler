@@ -125,7 +125,6 @@ string      \'([^\'\n]|\\n|\\\')*\'
 "<"                                          { process_token(LT); }
 "^"                                          { process_token(EXP); }
 
-
 "["                                          { process_token(LEFT); }
 "]"                                          { process_token(RIGHT); }
 "."                                          { process_token(DOT); }
