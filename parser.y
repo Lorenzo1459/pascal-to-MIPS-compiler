@@ -26,6 +26,7 @@ extern int yylineno;
 %token CONTINUE
 %token DESTRUCTOR
 %token DIV
+%token DO
 %token DOWNTO
 %token ELSE
 %token END
@@ -35,6 +36,7 @@ extern int yylineno;
 %token GOTO 
 %token IF
 %token IMPLEMENTATION
+%token INHERITED
 %token INLINE
 %token INTERFACE
 %token LABEL
@@ -45,7 +47,8 @@ extern int yylineno;
 %token OF
 %token ON
 %token OPERATOR
-%token OPERATOR%token PACKED
+%token OR
+%token PACKED
 %token PROCEDURE
 %token PROGRAM
 %token RECORD
@@ -79,16 +82,17 @@ extern int yylineno;
 %token PLUS
 %token MINUS
 %token TIMES
-%token DIV
+%token OVER
 %token EQ
 %token MT
-%token LPAR_DOT%token LEFT
+%token LT
+%token LEFT
 %token RIGHT
 %token DOT
 %token COMMA
 %token LPAR
 %token RPAR
-%token 2DOT
+%token TW0_DOT
 %token EXP
 %token AT 
 %token LKEY
@@ -96,3 +100,19 @@ extern int yylineno;
 %token CIF
 %token HASHTAG
 %token SEMI
+
+
+
+
+// Primitive error handling.
+void yyerror (char const *s) {
+    printf("SYNTAX ERROR (%d): %s\n", yylineno, s);
+    exit(EXIT_FAILURE);
+}
+
+int main() {
+    yyparse();
+    printf("PARSE SUCCESSFUL!\n");
+    yylex_destroy();    // To avoid memory leaks within flex...
+    return 0;
+}

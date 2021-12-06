@@ -120,7 +120,7 @@ comments    \{[^}]*\}
 "+" { process_token(PLUS); }
 "-" { process_token(MINUS); }
 "*" { process_token(TIMES); }
-"/" { process_token(DIV); }
+"/" { process_token(OVER); }
 "=" { process_token(EQ); }
 ">" { process_token(MT); }
 "<" { process_token(LT); }
@@ -130,7 +130,7 @@ comments    \{[^}]*\}
 "," { process_token(COMMA); }
 "(" { process_token(LPAR); }
 ")" { process_token(RPAR); }
-":" { process_token(2DOT); }
+":" { process_token(TWO_DOT); }
 "^" { process_token(EXP); }
 "@" { process_token(AT); }
 "{" { process_token(LKEY); }
