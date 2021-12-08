@@ -1,12 +1,15 @@
 
-all: flex gcc
+all: bison flex gcc
 	@echo "Done."
+
+bison: parser.y
+	bison parser.y
 
 flex: scanner.l
 	flex scanner.l
 
-gcc: scanner.c
-	gcc -Wall -o lab01 scanner.c -lfl
+gcc: scanner.c parser.c
+	gcc -Wall -o lab02 scanner.c parser.c
 
 clean:
-	@rm -f scanner.c lab01
+	@rm -f *.o *.output scanner.c parser.h parser.c lab02

@@ -58,7 +58,6 @@ extern int yylineno;
 %token SET
 %token SHL
 %token SHR
-%token STRING
 %token THEN
 %token TO
 %token TYPE
@@ -101,41 +100,26 @@ extern int yylineno;
 %token RKEY
 %token SEMI
 
-%token <bool_type> BOOL
-%token <int_type> INT
-%token <float_type> REAL 
-%token <id_type> ID 
-%token <str_type> STR 
+%token ID 
+%token STR 
 
 
-// Primitive error handling.
-void yyerror (char const *s) {
-    printf("SYNTAX ERROR (%d): %s\n", yylineno, s);
-    exit(EXIT_FAILURE);
-}
-
-int main() {
-    yyparse();
-    printf("PARSE SUCCESSFUL!\n");
-    yylex_destroy();    // To avoid memory leaks within flex...
-    return 0;
-}
-
+// Start symbol for the grammar.
 %start program
 
 %%
 
 program:
-    PROGRAM ID PROGRAM_HEADING SEMI block
+    PROGRAM ID program_heading SEMI block DOT
 ;
 
-PROGRAM_HEADING:
-    LPAR ID_LIST SEMI RPAR
+program_heading:
+    LPAR id_list SEMI RPAR
 ;
 
-ID_LIST:
+id_list:
     ID
-|    ID_LIST COMMA ID
+|    id_list COMMA ID
 ;
 
 block:
@@ -164,12 +148,12 @@ block4:
 ;
 
 block5:
-    begin statement_list END
+    BEGIN statement_list END
 ;
 
 label_declaration:
-    LABEL UNSIGNED_INT
-|    label_declaration COMMA UNSIGNED_INT
+    LABEL INT
+|    label_declaration COMMA INT
 ;
 
 constant_declaration:
@@ -207,12 +191,12 @@ type:
 ;
 
 simple_type:
-    LPAR ID_LIST LPAR
-|   CONST ... CONST
+    LPAR id_list LPAR
+|   CONST DOT DOT DOT CONST
 |   typeid
 ;
 
-structured_type;
+structured_type:
     ARRAY LEFT index_list RIGHT OF TYPE
 |   RECORD field_list END
 |   SET OF simple_type
@@ -282,7 +266,6 @@ proc_or_func:
 
 block_or_forward:
     block
-|   forward
 ;
 
 parameters:
@@ -297,7 +280,7 @@ formal_parameter_list:
 formal_parameter_section:
     parameterid_list TW0_DOT typeid
 |   VAR parameterid_list TW0_DOT typeid
-|   PROCEDURE id parameters
+|   PROCEDURE ID parameters
 |   FUNCTION ID parameters TW0_DOT typeid
 ;
 
@@ -305,6 +288,10 @@ parameterid_list:
     ID
 |   parameterid_list SEMI statement
 ;
+
+statement_list:  
+   statement  
+   statement_list SEMI statement 
 
 statement:
     empty
@@ -351,7 +338,7 @@ expression_list:
 ;
 
 label:
-    UNSIGNED_INT
+    INT
 ;
 
 record_variable_list:
@@ -397,8 +384,8 @@ unary_op:
 
 primary_expression:
     VAR
-|   UNSIGNED_INT
-|   UNSIGNED_REAL   
+|   INT
+|   REAL   
 |   STRING
 |   NIL
 |   funcid LPAR expression_list RPAR
@@ -414,7 +401,7 @@ element_list:
 
 element:
     expression
-|   expression ... expression
+|   expression DOT DOT DOT expression
 ;
 
 constid:
@@ -429,6 +416,10 @@ funcid:
     ID
 ;
 
+procid:  
+   ID
+;
+
 fieldid:
     ID
 ;
@@ -441,3 +432,16 @@ empty:
 ;
 
 %%
+
+// Primitive error handling.
+void yyerror (char const *s) {
+    printf("SYNTAX ERROR (%d): %s\n", yylineno, s);
+    exit(EXIT_FAILURE);
+}
+
+int main() {
+    yyparse();
+    printf("PARSE SUCCESSFUL!\n");
+    yylex_destroy();    // To avoid memory leaks within flex...
+    return 0;
+}
