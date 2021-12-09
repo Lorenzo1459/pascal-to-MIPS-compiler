@@ -11,11 +11,11 @@ var
   cr = cor;
   s = String;
 begin
-  s @= ' ';
+  s = ' ;
   for cr := azul to verde do
     if cr in c then
       begin
-        if ( s <> @@@@@@' ') then
+        if ( s <> ' ') then
           s := s + ' , ';
           s := s + nomes[cr];
       end;
