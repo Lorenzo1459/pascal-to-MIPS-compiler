@@ -16,5 +16,5 @@ end;
 begin
   a := 100;
   b := 200;
-  max = maximo(a, b);
+  max := maximo(a, b);
 end.
