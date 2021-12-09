@@ -19,11 +19,6 @@ begin
     else
       i := false;
 
-    if ( a <> b ) then
-      i := false
-    else
-      i := true;
-
     if ( a > b ) then
       i := true
     else
@@ -48,8 +43,6 @@ begin
     k := true;
 
     i := j and k;
-    i := j and then k;
     i := j or k;
-    i := j or else k;
     i := not j;
 end.

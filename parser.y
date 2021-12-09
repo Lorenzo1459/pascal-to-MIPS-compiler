@@ -84,6 +84,7 @@ extern int yylineno;
 %token LPAR_DOT
 %token RPAR_DOT
 %token PLUS
+%token NOTEQ
 %token MINUS
 %token TIMES
 %token OVER
@@ -300,7 +301,7 @@ statement-list:
 ;
 
 statement:
-  INTEGER TWO_DOT label-statement
+  INTEGER_VAL TWO_DOT label-statement
 | label-statement
 ;
 
@@ -377,6 +378,7 @@ expression:
 | expression MT expr
 | expression LOREQ expr
 | expression LT expr
+| expression NOTEQ expr
 | expression EQ expr
 | expr
 ;
@@ -385,6 +387,9 @@ expr:
   expr PLUS term
 | expr MINUS term
 | expr OR term
+| expr MOD term
+| expr DIV term
+| expr IN term
 | term
 ;
 

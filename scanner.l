@@ -134,6 +134,7 @@ char        \'[.]\'
 "*" { process_token(TIMES); }
 "/" { process_token(OVER); }
 "=" { process_token(EQ); }
+"<>" { process_token(NOTEQ); }
 ">" { process_token(MT); }
 "<" { process_token(LT); }
 "^" { process_token(EXP); }
@@ -150,6 +151,7 @@ char        \'[.]\'
 "$" { process_token(CIF); }
 "#" { process_token(HASHTAG); }
 ";"	{ process_token(SEMI); }
+
 
 {num}+                                       { process_token(INTEGER_VAL); }
 {num}+"."{num}+                              { process_token(REAL_VAL); }

@@ -4,6 +4,10 @@ type
   cor = (azul, vermelho, amarelo, verde, branco, preto, laranja);
   cores = set of cor;
 
+
+var
+  c : cores;
+
 procedure mostrarCores(c : cores);
 
 var
@@ -20,9 +24,6 @@ begin
       end;
 end;
 
-var
-  c : cores;
 begin
-  c := [red, amarelo, azul, branco, preto];
   mostrarCores(c);
 end.

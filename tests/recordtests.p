@@ -1,27 +1,22 @@
 program recordtests;
 type
-CartinhasPtr = ^ Cartinha;
 Cartinhas = record
-   nome: packed array [1..50] of char;
-   artista: packed array [1..50] of char;
-   flavor: packed array [1..256] of char;
+   nome: array [1..50] of char;
+   artista: array [1..50] of char;
+   flavor: array [1..256] of char;
 end;
 
 var
-   carta1, carta2: CartinhasPtr;
+   carta1, carta2: Cartinhas;
 
 begin
-   new(carta1);
-   new(carta2);
 
-   carta1^.nome  := 'Tarmogoyf';
-   carta1^.artista := 'Justin Murray';
-   carta1^.flavor := 'What doesnt grow, dies. An what dies grows the tarmogoyf ';
+   carta1.nome  := 'Tarmogoyf';
+   carta1.artista := 'Justin Murray';
+   carta1.flavor := 'What doesnt grow, dies. An what dies grows the tarmogoyf ';
 
-   carta2^.nome := 'Life from the loam';
-   carta2^.artista := 'Dan Mumford';
-   carta2^.flavor := 'When there is no one left but the ravens, the Swarm will rise and rule all. —Lost prophecy of Svogthir';
+   carta2.nome := 'Life from the loam';
+   carta2.artista := 'Dan Mumford';
+   carta2.flavor := 'When there is no one left but the ravens, the Swarm will rise and rule all. —Lost prophecy of Svogthir';
 
-   dispose(carta1);
-   dispose(carta2);
 end.
