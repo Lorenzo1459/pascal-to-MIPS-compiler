@@ -1,11 +1,12 @@
 pRogRam Test;
-//isso eh um commentario\n
-
+//isso eh um commentari
 (*isso tbm 
 eh um //comentario
 comentario*)
-type 
-	int = integer; //outro comentario
+type
+	letra_minuscula = 'a'..'z';
+	days = array [1..10] OF letra_minuscula;
+	fees = real;
 var
 	a : real;{ comentario //comentariodentro
 	continua}

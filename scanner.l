@@ -1,14 +1,19 @@
 
 /* Flex output */
 %option outfile="scanner.c"
+/* Unused functions */
 %option noyywrap
 %option nounput
 %option noinput
 /* Auto increment variable yylineno every time a '\n' is read. */
 %option yylineno
+
 %{
-#include <stdio.h>
+
+#include "parser.h"
+
 #define process_token(type) return type
+
 %}
 
 A [aA]
@@ -44,6 +49,7 @@ alphanum    [a-zA-Z_0-9]
 ignore      [ \t\n]+
 comments    \{[^}]*\}
 string      \'([^\'\n]|\\n|\\\')*\'
+char        \'[.]\'
 
 %%
 
@@ -56,7 +62,7 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {A}{N}{D}                                    { process_token(AND); }
 {A}{R}{R}{A}{Y}                              { process_token(ARRAY); }
 {A}{S}{M}                                    { process_token(ASM); }
-{B}{E}{G}{I}{N}                              { process_token(BEGIN); }
+{B}{E}{G}{I}{N}                              { process_token(BEGIN_RW); }
 {B}{R}{E}{A}{K}                              { process_token(BREAK); }
 {C}{A}{S}{E}                                 { process_token(CASE); }
 {C}{O}{N}{S}{T}                              { process_token(CONST); }
@@ -68,16 +74,16 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {D}{O}{W}{N}{T}{O}                           { process_token(DOWNTO); }
 {E}{L}{S}{E}                                 { process_token(ELSE); }
 {E}{N}{D}                                    { process_token(END); }
-{F}{I}{L}{E}                                 { process_token(FILE); }
+{F}{I}{L}{E}                                 { process_token(FILE_W); }
 {F}{O}{R}                                    { process_token(FOR); }
 {F}{U}{N}{C}{T}{I}{O}{N}                     { process_token(FUNCTION); }
 {G}{O}{T}{O}                                 { process_token(GOTO); }
 {I}{F}                                       { process_token(IF); }
 {I}{M}{P}{L}{E}{M}{E}{N}{T}{A}{T}{I}{O}{N}   { process_token(IMPLEMENTATION); }
-{I}{N}                                       { process_token(IN); }
 {I}{N}{H}{E}{R}{I}{T}{E}{D}                  { process_token(INHERITED); }
 {I}{N}{L}{I}{N}{E}                           { process_token(INLINE); }
 {I}{N}{T}{E}{R}{F}{A}{C}{E}                  { process_token(INTERFACE); }
+{I}{N}                                       { process_token(IN); }
 {L}{A}{B}{E}{L}                              { process_token(LABEL); }
 {M}{O}{D}                                    { process_token(MOD); }
 {N}{I}{L}                                    { process_token(NIL); }
@@ -108,45 +114,51 @@ string      \'([^\'\n]|\\n|\\\')*\'
 {W}{I}{T}{H}                                 { process_token(WITH); }
 {X}{O}{R}                                    { process_token(XOR); }
 
-{I}{N}{T}                                    { process_token(INT); }
+{I}{N}{T}{E}{G}{E}{R}                        { process_token(INTEGER); }
 {R}{E}{A}{L}                                 { process_token(REAL); }
-{B}{O}{O}{L}{E}{A}{N}                        { process_token(BOOL); }
+{C}{H}{A}{R}                                 { process_token(CHAR); }
 {S}{T}{R}{I}{N}{G}                           { process_token(STRING); }
 
-"<="                                         { process_token(LOREQ); }
-">="                                         { process_token(MOREQ); }
-":="                                         { process_token(ASSIGN); }
-"+="                                         { process_token(PLUSEQ); }
-"-="                                         { process_token(MINUSEQ); }
-"/="                                         { process_token(DIVEQ); }
-"*="                                         { process_token(TIMESEQ); }
-"+"                                          { process_token(PLUS); }
-"-"                                          { process_token(MINUS); }
-"*"                                          { process_token(TIMES); }
-"/"                                          { process_token(OVER); }
-"="                                          { process_token(EQ); }
-">"                                          { process_token(MT); }
-"<"                                          { process_token(LT); }
-"^"                                          { process_token(EXP); }
 
-"["                                          { process_token(LEFT); }
-"]"                                          { process_token(RIGHT); }
-"."                                          { process_token(DOT); }
-","                                          { process_token(COMMA); }
-"("                                          { process_token(LPAR); }
-")"                                          { process_token(RPAR); }
-":"                                          { process_token(TWO_DOT); }
-"{"                                          { process_token(LKEY); }
-"}"                                          { process_token(RKEY); }
-";"	                                         { process_token(SEMI); }
+"<=" { process_token(LOREQ); }
+">=" { process_token(MOREQ); }
+":=" { process_token(ASSIGN); }
+"+=" { process_token(PLUSEQ); }
+"-=" { process_token(MINUSEQ); }
+"/=" { process_token(DIVEQ); }
+"*=" { process_token(TIMESEQ); }
+"(." { process_token(LPAR_DOT); } 
+".)" { process_token(RPAR_DOT); } 
+"+" { process_token(PLUS); }
+"-" { process_token(MINUS); }
+"*" { process_token(TIMES); }
+"/" { process_token(OVER); }
+"=" { process_token(EQ); }
+">" { process_token(MT); }
+"<" { process_token(LT); }
+"^" { process_token(EXP); }
+"[" { process_token(LEFT); }
+"]" { process_token(RIGHT); }
+"." { process_token(DOT); }
+"," { process_token(COMMA); }
+"(" { process_token(LPAR); }
+")" { process_token(RPAR); }
+":" { process_token(TWO_DOT); }
+"@" { process_token(AT); }
+"{" { process_token(LKEY); }
+"}" { process_token(RKEY); }
+"$" { process_token(CIF); }
+"#" { process_token(HASHTAG); }
+";"	{ process_token(SEMI); }
 
-{T}{R}{U}{E}                                 { process_token(BOOL_TYPE); }
-{F}{A}{L}{S}{E}                              { process_token(BOOL_TYPE); }
+{num}+                                       { process_token(INTEGER_VAL); }
+{num}+"."{num}+                              { process_token(REAL_VAL); }
+{char}                                       { process_token(CHAR_VAL); }
+{string}                                     { process_token(STRING_VAL); }
+{alpha}{alphanum}*                           { process_token(ID); }
 
-{num}+                                       { process_token(INT_TYPE); }
-{num}+"."{num}+                              { process_token(REAL_TYPE); }
-
-{alpha}{alphanum}*                           { process_token(ID_TYPE); }
-{string}                                     { process_token(STR_TYPE); }
+            /* Be sure to keep this as the last rule */
+.           { printf("LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
+              exit(EXIT_FAILURE); }
 
 %%

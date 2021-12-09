@@ -1,5 +1,8 @@
-%output "parser.c"
-%defines "parser.h"
+
+%output "parser.c"          // File name of generated parser.
+%defines "parser.h"         // Produces a 'parser.h'
+%define parse.error verbose // Give proper messages when a syntax error is found.
+%define parse.lac full      // Enable LAC to improve syntax error handling.
 
 %{
 #include <stdio.h>
@@ -14,11 +17,12 @@ extern char *yytext;
 extern int yylineno;
 %}
 
+
 %token ABSOLUTE
 %token AND
 %token ARRAY
 %token ASM
-%token BEGIN
+%token BEGIN_RW
 %token BREAK
 %token CASE
 %token CONST
@@ -30,12 +34,13 @@ extern int yylineno;
 %token DOWNTO
 %token ELSE
 %token END
-%token FILE
+%token FILE_W
 %token FOR
 %token FUNCTION
 %token GOTO 
 %token IF
 %token IMPLEMENTATION
+%token IN
 %token INHERITED
 %token INLINE
 %token INTERFACE
@@ -69,11 +74,6 @@ extern int yylineno;
 %token WITH
 %token XOR
 
-%token INT 
-%token REAL
-%token BOOL 
-%token STRING 
-
 %token LOREQ
 %token MOREQ
 %token ASSIGN
@@ -81,6 +81,8 @@ extern int yylineno;
 %token MINUSEQ
 %token DIVEQ
 %token TIMESEQ
+%token LPAR_DOT
+%token RPAR_DOT
 %token PLUS
 %token MINUS
 %token TIMES
@@ -95,14 +97,31 @@ extern int yylineno;
 %token COMMA
 %token LPAR
 %token RPAR
-%token TW0_DOT
+%token TWO_DOT
+%token AT
 %token LKEY
 %token RKEY
+%token CIF
+%token HASHTAG
 %token SEMI
 
-%token ID 
-%token STR 
+%token INTEGER
+%token REAL
+%token CHAR
+%token STRING
+%token ID
 
+%token INTEGER_VAL
+%token REAL_VAL
+%token CHAR_VAL
+%token STRING_VAL
+
+// Precedence of operators.
+// All operators are left associative.
+// Higher line number == higher precedence.
+//%left EQ LT
+//%left PLUS MINUS
+//%left TIMES OVER
 
 // Start symbol for the grammar.
 %start program
@@ -110,326 +129,100 @@ extern int yylineno;
 %%
 
 program:
-    PROGRAM ID program_heading SEMI block DOT
-;
-
-program_heading:
-    LPAR id_list SEMI RPAR
-;
-
-id_list:
-    ID
-|    id_list COMMA ID
+  PROGRAM ID SEMI block DOT
 ;
 
 block:
-    block1
-|    label_declaration SEMI block1
+  label-declaration constant-declaration type-declaration variable-declaration proc-and-func-declaration
 ;
 
-block1:
-    block2
-|    constant_declaration SEMI block2
+label-declaration: 
+
 ;
 
-block2:
-    block3
-|   type_declaration SEMI block3
+constant-declaration:
+  CONST constant-expression-list
+|
 ;
 
-block3:
-    block4
-|   variable_declaration SEMI block4
+type-declaration:
+  TYPE type-declaration-list
+| 
 ;
 
-block4:
-    block5
-|   proc_and_func_declaration SEMI block5
+variable-declaration:
+
 ;
 
-block5:
-    BEGIN statement_list END
+proc-and-func-declaration:
+
 ;
 
-label_declaration:
-    LABEL INT
-|    label_declaration COMMA INT
+constant-expression-list:
+  constant-expression-list ID EQ constants SEMI
+| ID EQ constants SEMI
 ;
 
-constant_declaration:
-    CONST ID EQ CONST
-|   constant_declaration SEMI ID EQ CONST
+constants:
+  INTEGER_VAL
+| REAL_VAL
+| CHAR_VAL
+| STRING_VAL
 ;
 
-type_declaration:
-    TYPE ID EQ TYPE
-|   type_declaration SEMI ID EQ TYPE
+type-declaration-list:
+  type-declaration-list type-define
+| type-define
 ;
 
-variable_declaration:
-    VAR variable_id_list EQ TYPE
-|   variable_declaration SEMI variable_id_list EQ TYPE
+type-define: 
+  ID EQ type-declaration-define SEMI
 ;
 
-variable_id_list:
-    ID
-|   variable_id_list COMMA ID
+type-declaration-define:
+  simple-type  
+| structured-type  
+| recorde-type 
 ;
 
-constant:
-    INT
-|   REAL
-|   STRING
-|   constid
-|   PLUS constid
+structured-type:
+  ARRAY LEFT simple-type RIGHT OF type-declaration-define
 ;
 
-type:
-    simple_type
-|   structured_type
-|   EXP typeid
+recorde-type:
+  RECORD record-declaration-list END
 ;
 
-simple_type:
-    LPAR id_list LPAR
-|   CONST DOT DOT DOT CONST
-|   typeid
+record-declaration-list:
+  record-declaration-list record-declare
+| record-declare
 ;
 
-structured_type:
-    ARRAY LEFT index_list RIGHT OF TYPE
-|   RECORD field_list END
-|   SET OF simple_type
-|   FILE OF TYPE
-|   PACKED structured_type
+record-declare:
+  name-list TWO_DOT type-declaration-define SEMI
 ;
 
-index_list:
-    simple_type
-|   index_list COMMA simple_type
+name-list:
+  name-list COMMA ID
+| ID
 ;
 
-field_list:
-    fixed_part
-|   fixed_part SEMI variant_part
-|   variant_part
+simple-type:
+  INTEGER
+| REAL
+| CHAR
+| STRING
+| ID
+| LPAR name-list RPAR
+| constants DOT DOT constants
+| MINUS constants DOT DOT constants
+| MINUS constants DOT DOT MINUS constants
+| ID DOT DOT ID
 ;
 
-fixed_part:
-    record_field
-|   fixed_part SEMI record_field
-;
 
-record_field:
-    empty
-|   fieldid_list TW0_DOT TYPE
-;
 
-fieldid_list:
-    ID
-|   fieldid_list COMMA ID
-;
 
-variant_part:
-    CASE tag_field OF variant_list
-;
-
-tag_field:
-    typeid 
-|   ID TW0_DOT typeid
-;
-
-variant_list:
-    variant
-|   variant_list SEMI variant
-;
-
-variant:
-    empty
-|   case_label_list TW0_DOT LPAR field_list RPAR
-;
-
-case_label_list:
-    CONST
-|   case_label_list COMMA CONST
-;
-
-proc_and_func_declaration:
-    proc_or_func
-|   proc_and_func_declaration SEMI proc_or_func
-;
-
-proc_or_func:
-    PROCEDURE ID parameters SEMI block_or_forward
-|   FUNCTION ID parameters TW0_DOT typeid SEMI block_or_forward
-;
-
-block_or_forward:
-    block
-;
-
-parameters:
-    LPAR formal_parameter_list RPAR
-;
-
-formal_parameter_list:
-    formal_parameter_section
-|   formal_parameter_list SEMI formal_parameter_section
-;
-
-formal_parameter_section:
-    parameterid_list TW0_DOT typeid
-|   VAR parameterid_list TW0_DOT typeid
-|   PROCEDURE ID parameters
-|   FUNCTION ID parameters TW0_DOT typeid
-;
-
-parameterid_list:
-    ID
-|   parameterid_list SEMI statement
-;
-
-statement_list:  
-   statement  
-   statement_list SEMI statement 
-
-statement:
-    empty
-|   VAR ASSIGN expression
-|   BEGIN statement_list END
-|   IF expression THEN statement
-|   IF expression THEN statement ELSE statement
-|   CASE expression OF case_list END
-|   WHILE expression DO statement
-|   REPEAT statement_list UNTIL expression
-|   FOR varid ASSIGN for_list DO statement
-|   procid
-|   procid LPAR expression_list RPAR
-|   GOTO LABEL
-|   WITH record_variable_list DO statement
-|   LABEL statement
-;
-
-variable:
-    ID
-|   variable LEFT subscript_list RIGHT
-|   variable DOT fieldid
-|   variable EXP
-;
-
-subscript_list:
-    expression
-|   subscript_list COMMA expression
-;
-
-case_list:
-    case_label_list TW0_DOT statement
-|   case_list SEMI case_label_list TW0_DOT statement
-;
-
-for_list:
-    expression TO expression
-|   expression DOWNTO expression
-;
-
-expression_list:
-    expression
-|   expression_list COMMA expression
-;
-
-label:
-    INT
-;
-
-record_variable_list:
-    VAR
-|   record_variable_list COMMA VAR
-;  
-
-expression:
-    expression relational_op additive_expression
-|   additive_expression
-;
-
-relational_op:
-    LT LOREQ EQ MOREQ MT
-;
-
-additive_expression:
-    additive_expression additive_op multiplicative_expression
-|   multiplicative_expression
-;
-
-additive_op:
-    PLUS MINUS OR
-;
-
-multiplicative_expression:
-    multiplicative_expression multiplicative_op unary_expression
-|   unary_expression
-;
-
-multiplicative_op:
-    TIMES OVER DIV MOD AND
-;
-
-unary_expression:
-    unary_op unary_expression
-|   primary_expression
-;
-
-unary_op:
-    PLUS MINUS NOT
-;
-
-primary_expression:
-    VAR
-|   INT
-|   REAL   
-|   STRING
-|   NIL
-|   funcid LPAR expression_list RPAR
-|   LEFT element_list RIGHT
-|   LPAR expression RPAR
-;
-
-element_list:
-    empty
-|   element
-|   element_list COMMA element
-;
-
-element:
-    expression
-|   expression DOT DOT DOT expression
-;
-
-constid:
-    ID
-;
-
-typeid:
-    ID
-;
-
-funcid:
-    ID
-;
-
-procid:  
-   ID
-;
-
-fieldid:
-    ID
-;
-
-varid:
-    ID
-;
-
-empty:
-;
 
 %%
 
