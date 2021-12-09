@@ -1,6 +1,6 @@
-program function;
+program funcao;
 var
-  a, b, yes : integer;
+  a, b, max : integer;
 
 function maximo(num1, num2: integer): integer;
 var
@@ -16,5 +16,5 @@ end;
 begin
   a := 100;
   b := 200;
-  yes = maximo(a, b);
+  max = maximo(a, b);
 end.
