@@ -133,29 +133,35 @@ program:
 ;
 
 block:
+  block-head block-body
+;
+
+block-head:
   label-declaration constant-declaration type-declaration variable-declaration proc-and-func-declaration
 ;
 
-label-declaration: 
+block-body:
+  BEGIN_RW statement-list END
+;
 
+label-declaration: 
+  LABEL name-string-list SEMI
+| %empty
 ;
 
 constant-declaration:
   CONST constant-expression-list
-|
+| %empty
 ;
 
 type-declaration:
   TYPE type-declaration-list
-| 
+| %empty
 ;
 
 variable-declaration:
-
-;
-
-proc-and-func-declaration:
-
+  VAR var-declaration-list
+| %empty
 ;
 
 constant-expression-list:
@@ -183,6 +189,7 @@ type-declaration-define:
   simple-type  
 | structured-type  
 | recorde-type 
+| set-type
 ;
 
 structured-type:
@@ -202,9 +209,24 @@ record-declare:
   name-list TWO_DOT type-declaration-define SEMI
 ;
 
+set-type:
+  SET OF simple-type
+;
+
+name-string-list:
+  name-list
+| string-list-val
+;
+
 name-list:
   name-list COMMA ID
 | ID
+;
+
+
+string-list-val:
+  string-list-val COMMA INTEGER_VAL
+| INTEGER_VAL
 ;
 
 simple-type:
@@ -220,8 +242,174 @@ simple-type:
 | ID DOT DOT ID
 ;
 
+var-declaration-list:
+  var-declaration-list var-define
+| var-define
+;
+
+var-define:
+  name-list TWO_DOT type-declaration-define SEMI
+;
+
+proc-and-func-declaration:
+  proc-and-func-declaration function-declaration-list
+| proc-and-func-declaration procedure-declaration-list
+| function-declaration-list
+| procedure-declaration-list
+| %empty
+;
+
+function-declaration-list:
+  function-declare SEMI block SEMI
+;
+
+function-declare:
+  FUNCTION ID parameters TWO_DOT simple-type
+;
+
+procedure-declaration-list:
+  procedure-declare SEMI block SEMI
+;
+
+procedure-declare:
+  PROCEDURE ID parameters
+;
+
+parameters:
+  LPAR parameters-declare RPAR
+| %empty
+;
+
+parameters-declare:
+  parameters-declare SEMI parameters-type-declare
+| parameters-type-declare
+;
+
+parameters-type-declare:
+  parameters-var-list TWO_DOT simple-type
+;
+
+parameters-var-list:
+  VAR name-list
+| name-list
+;
+
+statement-list:
+  statement-list statement SEMI
+| statement SEMI
+;
+
+statement:
+  INTEGER TWO_DOT label-statement
+| label-statement
+;
+
+label-statement:
+  assign-statement
+| proc-id-statement
+| BEGIN_RW statement-list END
+| if-statement
+| repeat-statement
+| while-statement
+| for-statement
+| case-statement
+| goto-statement
+;
+
+assign-statement:
+  ID ASSIGN expression
+| ID LEFT expression RIGHT ASSIGN expression
+| ID DOT ID ASSIGN expression
+;
+
+proc-id-statement:
+  ID
+| ID LPAR list-args RPAR
+;
 
 
+if-statement:
+  IF expression THEN statement else-statement
+;
+
+else-statement:
+  ELSE statement
+| %empty
+;
+
+repeat-statement:
+  REPEAT statement-list UNTIL expression
+;
+
+while-statement:
+  WHILE expression DO statement
+;
+
+for-statement:
+  FOR ID ASSIGN expression direction-define expression DO statement
+;
+
+direction-define:
+  DOWNTO
+| TO
+;
+
+case-statement:
+  CASE expression OF case-declaration-list END
+;
+
+case-declaration-list:
+  case-declaration-list case-define
+| case-define
+;
+
+case-define:
+  constants TWO_DOT statement SEMI
+| ID TWO_DOT statement SEMI
+;
+
+goto-statement:
+  GOTO INTEGER_VAL
+;
+
+expression:
+  expression MOREQ expr
+| expression MT expr
+| expression LOREQ expr
+| expression LT expr
+| expression EQ expr
+| expr
+;
+
+expr:
+  expr PLUS term
+| expr MINUS term
+| expr OR term
+| term
+;
+
+term:
+  term TIMES factor
+| term OVER factor
+| term AND factor
+| factor
+;
+
+factor:
+  ID
+| ID LPAR list-args RPAR
+| constants
+| LPAR expression RPAR
+| NOT factor
+| MINUS factor
+| ID LEFT expression RIGHT
+| ID DOT ID
+;
+
+list-args:
+  list-args COMMA expression
+| expression
+;
 
 
 %%

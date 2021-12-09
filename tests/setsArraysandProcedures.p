@@ -5,8 +5,7 @@ type
   cores = set of cor;
 
 procedure mostrarCores(c : cores);
-const
-  nomes : array [cor] of String[7] = ('azul', 'vermelho', 'amarelo', 'verde', 'branco', 'preto', 'laranja');
+
 var
   cr : cor;
   s : String;
