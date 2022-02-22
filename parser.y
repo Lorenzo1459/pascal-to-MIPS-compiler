@@ -7,16 +7,31 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "types.h"
+#include "tables.h"
 #include "parser.h"
 
 int yylex(void);
 int yylex_destroy(void);
 void yyerror(char const *s);
 
+void check_var();
+void new_var(StrStack *p_st);
+void guarda_var();
+void guarda_var_unica();
+
 extern char *yytext;
 extern int yylineno;
-%}
 
+StrTable *st;
+VarTable *vt;
+StrStack *stk;
+StrStack *stk_unica;
+
+int count = 0;
+
+Type last_decl_type;
+%}
 
 %token ABSOLUTE
 %token AND
@@ -137,12 +152,16 @@ block:
   block-head block-body
 ;
 
+sub-block:
+  block-head block-body
+;
+
 block-head:
   label-declaration constant-declaration type-declaration variable-declaration proc-and-func-declaration
 ;
 
 block-body:
-  BEGIN_RW statement-list END
+  BEGIN_RW  statement-list  END
 ;
 
 label-declaration: 
@@ -167,11 +186,11 @@ variable-declaration:
 
 constant-expression-list:
   constant-expression-list ID EQ constants SEMI
-| ID EQ constants SEMI
+| ID  EQ constants SEMI
 ;
 
 constants:
-  INTEGER_VAL
+  INTEGER_VAL  
 | REAL_VAL
 | CHAR_VAL
 | STRING_VAL
@@ -220,8 +239,8 @@ name-string-list:
 ;
 
 name-list:
-  name-list COMMA ID
-| ID
+  name-list COMMA ID    {guarda_var();}
+| ID                    {guarda_var();}
 ;
 
 
@@ -231,11 +250,11 @@ string-list-val:
 ;
 
 simple-type:
-  INTEGER
-| REAL
-| CHAR
-| STRING
-| ID
+  INTEGER       { last_decl_type = INT_TYPE;  }
+| REAL          { last_decl_type = REAL_TYPE; }
+| CHAR          { last_decl_type = CHAR_TYPE; }
+| STRING        { last_decl_type = STR_TYPE;  }   
+| ID        
 | LPAR name-list RPAR
 | constants DOT DOT constants
 | MINUS constants DOT DOT constants
@@ -249,7 +268,7 @@ var-declaration-list:
 ;
 
 var-define:
-  name-list TWO_DOT type-declaration-define SEMI
+  name-list TWO_DOT type-declaration-define { new_var(stk);} SEMI
 ;
 
 proc-and-func-declaration:
@@ -261,15 +280,15 @@ proc-and-func-declaration:
 ;
 
 function-declaration-list:
-  function-declare SEMI block SEMI
+  function-declare SEMI sub-block SEMI
 ;
 
 function-declare:
-  FUNCTION ID parameters TWO_DOT simple-type
+  FUNCTION ID {guarda_var_unica();} parameters TWO_DOT simple-type {new_var(stk_unica);}
 ;
 
 procedure-declaration-list:
-  procedure-declare SEMI block SEMI
+  procedure-declare SEMI sub-block SEMI
 ;
 
 procedure-declare:
@@ -277,36 +296,36 @@ procedure-declare:
 ;
 
 parameters:
-  LPAR parameters-declare RPAR
+  LPAR parameters-declare {new_var(stk);} RPAR
 | %empty
 ;
 
 parameters-declare:
-  parameters-declare SEMI parameters-type-declare
-| parameters-type-declare
+  parameters-declare SEMI parameters-type-declare 
+| parameters-type-declare 
 ;
 
 parameters-type-declare:
-  parameters-var-list TWO_DOT simple-type
+  parameters-var-list TWO_DOT simple-type 
 ;
 
 parameters-var-list:
-  VAR name-list
-| name-list
+  VAR name-list 
+| name-list 
 ;
 
 statement-list:
-  statement-list statement SEMI
-| statement SEMI
+  statement-list  statement SEMI 
+| statement  SEMI 
 ;
 
 statement:
-  INTEGER_VAL TWO_DOT label-statement
-| label-statement
+  INTEGER_VAL TWO_DOT label-statement 
+| {check_var();} label-statement 
 ;
 
 label-statement:
-  assign-statement
+  assign-statement 
 | proc-id-statement
 | BEGIN_RW statement-list END
 | if-statement
@@ -327,7 +346,6 @@ proc-id-statement:
   ID
 | ID LPAR list-args RPAR
 ;
-
 
 if-statement:
   IF expression THEN statement else-statement
@@ -351,8 +369,8 @@ for-statement:
 ;
 
 direction-define:
-  DOWNTO
-| TO
+  TO
+| DOWNTO
 ;
 
 case-statement:
@@ -390,20 +408,20 @@ expr:
 | expr MOD term
 | expr DIV term
 | expr IN term
-| term
+| term 
 ;
 
 term:
   term TIMES factor
 | term OVER factor
 | term AND factor
-| factor
+| factor 
 ;
 
 factor:
-  ID
+  ID   
 | ID LPAR list-args RPAR
-| constants
+| constants 
 | LPAR expression RPAR
 | NOT factor
 | MINUS factor
@@ -412,8 +430,8 @@ factor:
 ;
 
 list-args:
-  list-args COMMA expression
-| expression
+  list-args COMMA expression 
+| expression 
 ;
 
 
@@ -425,9 +443,75 @@ void yyerror (char const *s) {
     exit(EXIT_FAILURE);
 }
 
+void check_var() {
+    int idx = lookup_var(vt, yytext);
+    if (idx == -1) {
+        printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
+                yylineno, yytext);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void new_var(StrStack *p_st) {
+    int idx = lookup_var(vt, yytext);
+    if (idx != -1) {
+        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
+                yylineno, yytext, get_line(vt, idx));
+        exit(EXIT_FAILURE);
+    }
+    
+    int cont = 0;
+    int i = getSize(p_st);
+    //printf("Inicio i= %d\n", i);
+    char * data;
+    while(cont < i){
+       data = get_string_stack(p_st, cont);
+       //printf("Armazena: %s\n", data);
+       add_var(vt, data, yylineno, last_decl_type);
+       //printf("Armazenei: %s\n", data);
+       //printf("i= %d\n", cont);
+       subSize(p_st);
+       cont++;
+    }
+}
+
+void guarda_var(){
+     int idx = lookup_var(vt, yytext);
+     if (idx != -1) {
+        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
+                yylineno, yytext, get_line(vt, idx));
+        exit(EXIT_FAILURE);
+    }
+    add_string_stack(stk, yytext);
+}
+
+void guarda_var_unica(){
+    int idx = lookup_var(vt, yytext);
+     if (idx != -1) {
+        printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
+                yylineno, yytext, get_line(vt, idx));
+        exit(EXIT_FAILURE);
+    }
+    add_string_stack(stk_unica, yytext);
+}
+
 int main() {
+    stk = create_str_stack();
+    stk_unica = create_str_stack();
+    st = create_str_table();
+    vt = create_var_table();
+
     yyparse();
     printf("PARSE SUCCESSFUL!\n");
+    free_str_stack(stk);
+
+    printf("\n\n");
+    print_str_table(st); printf("\n\n");
+    print_var_table(vt); printf("\n\n");
+
+    free_str_table(st);
+    free_var_table(vt);
+
     yylex_destroy();    // To avoid memory leaks within flex...
     return 0;
 }

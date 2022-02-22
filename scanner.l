@@ -10,10 +10,13 @@
 
 %{
 
+#include "types.h"
+#include "tables.h"
 #include "parser.h"
 
 #define process_token(type) return type
 
+extern StrTable *st;
 %}
 
 A [aA]
@@ -156,7 +159,7 @@ char        \'[.]\'
 {num}+                                       { process_token(INTEGER_VAL); }
 {num}+"."{num}+                              { process_token(REAL_VAL); }
 {char}                                       { process_token(CHAR_VAL); }
-{string}                                     { process_token(STRING_VAL); }
+{string}                                     { add_string(st, yytext); process_token(STRING_VAL); }
 {alpha}{alphanum}*                           { process_token(ID); }
 
             /* Be sure to keep this as the last rule */
