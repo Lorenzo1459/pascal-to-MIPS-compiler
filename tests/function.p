@@ -2,9 +2,9 @@ program funcao;
 var
   a, b, max : integer;
 
-function maximo(num1, num2: integer): integer;
+function maximo(num1, num2: char): string;
 var
-  resultado: integer;
+  resultado : integer;
 begin
   if (num1 > num2) then
     resultado := num1

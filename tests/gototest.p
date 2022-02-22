@@ -4,12 +4,13 @@ var
    a : integer;
 begin
    a := 10;
+   c := 20;
    1: repeat
-      if( a = 15 ) then
+      if( c = 15 ) then
       begin
          a := a + 1;
          goto 1;
       end;
-      a := a + 1;
+      c := a + 1;
    until a = 20;
 end.
