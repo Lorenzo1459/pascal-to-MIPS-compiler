@@ -15,10 +15,16 @@ int yylex(void);
 int yylex_destroy(void);
 void yyerror(char const *s);
 
-void check_var();
+Type check_var();
 void new_var(StrStack *p_st);
 void guarda_var();
 void guarda_var_unica();
+
+Type unify_bin_op(Type l, Type r,
+                  const char* op, Type (*unify)(Type,Type));
+
+void check_assign(Type l, Type r);
+void check_bool_expr(const char* cmd, Type t);
 
 extern char *yytext;
 extern int yylineno;
@@ -33,6 +39,8 @@ int count = 0;
 
 Type last_decl_type;
 %}
+
+%define api.value.type {Type}
 
 %token ABSOLUTE
 %token AND
@@ -136,9 +144,9 @@ Type last_decl_type;
 // Precedence of operators.
 // All operators are left associative.
 // Higher line number == higher precedence.
-//%left EQ LT
-//%left PLUS MINUS
-//%left TIMES OVER
+%left EQ LT MT
+%left PLUS MINUS
+%left TIMES OVER
 
 // Start symbol for the grammar.
 %start program
@@ -337,7 +345,7 @@ label-statement:
 ;
 
 statement:
- label-statement
+  label-statement
 | INTEGER_VAL TWO_DOT label-statement  
 ;
 
@@ -448,13 +456,14 @@ void yyerror (char const *s) {
     exit(EXIT_FAILURE);
 }
 
-void check_var() {
+Type check_var() {
     int idx = lookup_var(vt, id_copy);
     if (idx == -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
                 yylineno, id_copy);
         exit(EXIT_FAILURE);
     }
+    return get_type(vt, idx);
 }
 
 void new_var(StrStack *p_st) {
@@ -467,14 +476,10 @@ void new_var(StrStack *p_st) {
     
     int cont = 0;
     int i = getSize(p_st);
-    //printf("Inicio i= %d\n", i);
     char * data;
     while(cont < i){
        data = get_string_stack(p_st, cont);
-       //printf("Armazena: %s\n", data);
        add_var(vt, data, yylineno, last_decl_type);
-       //printf("Armazenei: %s\n", data);
-       //printf("i= %d\n", cont);
        subSize(p_st);
        cont++;
     }
@@ -499,6 +504,43 @@ void guarda_var_unica(){
     }
     add_string_stack(stk_unica, id_copy);
 }
+
+
+// ----------------------------------------------------------------------------
+
+// Type checking and inference.
+
+void type_error(const char* op, Type t1, Type t2) {
+    printf("SEMANTIC ERROR (%d): incompatible types for operator '%s', LHS is '%s' and RHS is '%s'.\n",
+           yylineno, op, get_text(t1), get_text(t2));
+    exit(EXIT_FAILURE);
+}
+
+Type unify_bin_op(Type l, Type r,
+                  const char* op, Type (*unify)(Type,Type)) {
+    Type unif = unify(l, r);
+    if (unif == NO_TYPE) {
+        type_error(op, l, r);
+    }
+    return unif;
+}
+
+void check_assign(Type l, Type r) {
+    if (l == CHAR_TYPE && r != CHAR_TYPE) type_error(":=", l, r);
+    if (l == STR_TYPE  && r != STR_TYPE)  type_error(":=", l, r);
+    if (l == INT_TYPE  && r != INT_TYPE)  type_error(":=", l, r);
+    if (l == REAL_TYPE && !(r == INT_TYPE || r == REAL_TYPE)) type_error(":=", l, r);
+}
+
+void check_bool_expr(const char* cmd, Type t) {
+    if (t != CHAR_TYPE) {
+        printf("SEMANTIC ERROR (%d): conditional expression in '%s' is '%s' instead of '%s'.\n",
+           yylineno, cmd, get_text(t), get_text(CHAR_TYPE));
+        exit(EXIT_FAILURE);
+    }
+}
+
+
 
 int main() {
     stk = create_str_stack();

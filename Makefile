@@ -9,7 +9,7 @@ flex: scanner.l
 	flex scanner.l
 
 gcc: scanner.c parser.c tables.c types.c
-	gcc -Wall -o trabcp1 scanner.c parser.c tables.c types.c
+	gcc -Wall -o trabcp2 scanner.c parser.c tables.c types.c
 
 clean:
-	@rm -f *.o *.output scanner.c parser.h parser.c trabcp1
+	@rm -f *.o *.output scanner.c parser.h parser.c trabcp2

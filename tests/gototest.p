@@ -1,16 +1,11 @@
-program exGoto;
-label 1;
+program ifthenelse;
 var
-   a, c: integer;
+   a, b, : integer;
 begin
-   a := 10;
-   c := 20;
-   1: repeat
-      if( c > 15 ) then
-      begin
-         a := a + 1;
-         goto 1;
-      end;
-      c := a + 1;
-   until a = 20;
+   b := 20;
+   if ( b > 15 ) then
+      a := 10;
+   else
+      a := 30
+
 end.

@@ -174,17 +174,19 @@ char *get_string_stack(StrStack *st, int i)
 
 void print_str_stack(StrStack *st)
 {
-    printf("Strings table:\n");
+    printf("Stack:\n");
     for (int i = 0; i < st->size; i++)
     {
         printf("Entry %d -- %s\n", i, get_string_stack(st, i));
     }
 }
 
-int getSize(StrStack *st){
+int getSize(StrStack *st)
+{
     return st->size;
 }
 
-void subSize(StrStack *st){
+void subSize(StrStack *st)
+{
     st->size--;
 }
