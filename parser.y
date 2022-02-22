@@ -22,6 +22,7 @@ void guarda_var_unica();
 
 extern char *yytext;
 extern int yylineno;
+extern char id_copy[64];
 
 StrTable *st;
 VarTable *vt;
@@ -161,7 +162,7 @@ block-head:
 ;
 
 block-body:
-  BEGIN_RW  statement-list  END
+  compound-statement
 ;
 
 label-declaration: 
@@ -186,7 +187,7 @@ variable-declaration:
 
 constant-expression-list:
   constant-expression-list ID EQ constants SEMI
-| ID  EQ constants SEMI
+| ID EQ constants SEMI
 ;
 
 constants:
@@ -202,7 +203,7 @@ type-declaration-list:
 ;
 
 type-define: 
-  ID EQ type-declaration-define SEMI
+  ID {printf("%s\n", id_copy);} EQ type-declaration-define SEMI
 ;
 
 type-declaration-define:
@@ -239,8 +240,8 @@ name-string-list:
 ;
 
 name-list:
-  name-list COMMA ID    {guarda_var();}
-| ID                    {guarda_var();}
+  name-list COMMA ID    {printf("NameList: %s\n", id_copy);guarda_var();}
+| ID                    {printf("NameList: %s\n", id_copy);guarda_var();}
 ;
 
 
@@ -254,7 +255,7 @@ simple-type:
 | REAL          { last_decl_type = REAL_TYPE; }
 | CHAR          { last_decl_type = CHAR_TYPE; }
 | STRING        { last_decl_type = STR_TYPE;  }   
-| ID        
+| ID            { last_decl_type = INT_TYPE;  }
 | LPAR name-list RPAR
 | constants DOT DOT constants
 | MINUS constants DOT DOT constants
@@ -268,7 +269,7 @@ var-declaration-list:
 ;
 
 var-define:
-  name-list TWO_DOT type-declaration-define { new_var(stk);} SEMI
+  name-list TWO_DOT type-declaration-define {new_var(stk);} SEMI
 ;
 
 proc-and-func-declaration:
@@ -292,7 +293,7 @@ procedure-declaration-list:
 ;
 
 procedure-declare:
-  PROCEDURE ID parameters
+  PROCEDURE ID {guarda_var_unica();} parameters {new_var(stk_unica);}
 ;
 
 parameters:
@@ -314,20 +315,19 @@ parameters-var-list:
 | name-list 
 ;
 
-statement-list:
-  statement-list  statement SEMI 
-| statement  SEMI 
+compound-statement:
+  BEGIN_RW statement-list END
 ;
 
-statement:
-  INTEGER_VAL TWO_DOT label-statement 
-| {check_var();} label-statement 
+statement-list:
+  statement-list  statement SEMI 
+| statement SEMI 
 ;
 
 label-statement:
   assign-statement 
 | proc-id-statement
-| BEGIN_RW statement-list END
+| compound-statement
 | if-statement
 | repeat-statement
 | while-statement
@@ -336,10 +336,15 @@ label-statement:
 | goto-statement
 ;
 
+statement:
+ label-statement
+| INTEGER_VAL TWO_DOT label-statement  
+;
+
 assign-statement:
-  ID ASSIGN expression
-| ID LEFT expression RIGHT ASSIGN expression
-| ID DOT ID ASSIGN expression
+  ID {check_var();} ASSIGN expression
+| ID {check_var();}  LEFT expression RIGHT ASSIGN expression
+| ID {check_var();} DOT ID ASSIGN expression
 ;
 
 proc-id-statement:
@@ -415,18 +420,18 @@ term:
   term TIMES factor
 | term OVER factor
 | term AND factor
-| factor 
+| factor
 ;
 
 factor:
-  ID   
-| ID LPAR list-args RPAR
+  ID {check_var();}
+| ID {check_var();} LPAR list-args RPAR
 | constants 
 | LPAR expression RPAR
 | NOT factor
 | MINUS factor
-| ID LEFT expression RIGHT
-| ID DOT ID
+| ID {check_var();}  LEFT expression RIGHT
+| ID {check_var();}  DOT ID
 ;
 
 list-args:
@@ -444,10 +449,10 @@ void yyerror (char const *s) {
 }
 
 void check_var() {
-    int idx = lookup_var(vt, yytext);
+    int idx = lookup_var(vt, id_copy);
     if (idx == -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
-                yylineno, yytext);
+                yylineno, id_copy);
         exit(EXIT_FAILURE);
     }
 }
@@ -476,23 +481,23 @@ void new_var(StrStack *p_st) {
 }
 
 void guarda_var(){
-     int idx = lookup_var(vt, yytext);
+     int idx = lookup_var(vt, id_copy);
      if (idx != -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
-                yylineno, yytext, get_line(vt, idx));
+                yylineno, id_copy, get_line(vt, idx));
         exit(EXIT_FAILURE);
     }
-    add_string_stack(stk, yytext);
+    add_string_stack(stk, id_copy);
 }
 
 void guarda_var_unica(){
-    int idx = lookup_var(vt, yytext);
+    int idx = lookup_var(vt, id_copy);
      if (idx != -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
-                yylineno, yytext, get_line(vt, idx));
+                yylineno, id_copy, get_line(vt, idx));
         exit(EXIT_FAILURE);
     }
-    add_string_stack(stk_unica, yytext);
+    add_string_stack(stk_unica, id_copy);
 }
 
 int main() {

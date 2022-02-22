@@ -8,12 +8,23 @@ type
 	days = array [1..10] OF letra_minuscula;
 	fees = real;
 var
-	a : real;{ comentario //comentariodentro
+	a : integer;{ comentario //comentariodentro
 	continua}
-	b : int;
-	c : int;
+	b : real;
+	c : real;
 
-procedure max(num1, num2 :integer);
+function maximo(num1, num2: char): string;
+var
+  resultado : integer;
+begin
+  if (num1 > num2) then
+    resultado := num1
+  else
+    resultado := num2;
+  maximo := resultado;
+end;
+
+procedure max(num3, num4 :integer);
 
 begin
 	if (num1 < num2) then

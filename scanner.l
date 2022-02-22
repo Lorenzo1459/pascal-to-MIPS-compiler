@@ -14,7 +14,14 @@
 #include "tables.h"
 #include "parser.h"
 
+#define ID_SIZE 64
+char id_copy[ID_SIZE];
+
 #define process_token(type) return type
+
+#define process_id() \
+    for (int i = 0; i < ID_SIZE; i++) id_copy[i] = 0; \
+    strcpy(id_copy, yytext)
 
 extern StrTable *st;
 %}
@@ -160,7 +167,7 @@ char        \'[.]\'
 {num}+"."{num}+                              { process_token(REAL_VAL); }
 {char}                                       { process_token(CHAR_VAL); }
 {string}                                     { add_string(st, yytext); process_token(STRING_VAL); }
-{alpha}{alphanum}*                           { process_token(ID); }
+{alpha}{alphanum}*                           { process_id(); process_token(ID); }
 
             /* Be sure to keep this as the last rule */
 .           { printf("LEXICAL ERROR (%d): Unknown symbol %s\n", yylineno, yytext);
