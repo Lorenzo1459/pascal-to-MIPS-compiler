@@ -25,6 +25,10 @@ Type unify_bin_op(Type l, Type r,
 
 void check_assign(Type l, Type r);
 void check_bool_expr(const char* cmd, Type t);
+Type check_logical_op(Type l, Type r, const char* cmd);
+Type check_int_div_op(Type l, Type r, const char* cmd);
+Type check_not_op(Type l, const char* cmd);
+void check_assign_array(Type l, Type r);
 
 extern char *yytext;
 extern int yylineno;
@@ -48,6 +52,7 @@ Type last_decl_type;
 %token ASM
 %token BEGIN_RW
 %token BREAK
+%token BOOLEAN
 %token CASE
 %token CONST
 %token CONSTRUCTOR
@@ -139,6 +144,8 @@ Type last_decl_type;
 %token INTEGER_VAL
 %token REAL_VAL
 %token CHAR_VAL
+%token TRUE
+%token FALSE
 %token STRING_VAL
 
 // Precedence of operators.
@@ -199,10 +206,12 @@ constant-expression-list:
 ;
 
 constants:
-  INTEGER_VAL  
-| REAL_VAL
-| CHAR_VAL
-| STRING_VAL
+  INTEGER_VAL    { $$ = INT_TYPE;  }
+| REAL_VAL       { $$ = REAL_TYPE; }
+| CHAR_VAL       { $$ = STR_TYPE;  }
+| TRUE           { $$ = BOOL_TYPE; }
+| FALSE          { $$ = BOOL_TYPE; }
+| STRING_VAL     { $$ = STR_TYPE;  }
 ;
 
 type-declaration-list:
@@ -211,7 +220,7 @@ type-declaration-list:
 ;
 
 type-define: 
-  ID {printf("%s\n", id_copy);} EQ type-declaration-define SEMI
+  ID EQ type-declaration-define SEMI
 ;
 
 type-declaration-define:
@@ -222,7 +231,7 @@ type-declaration-define:
 ;
 
 structured-type:
-  ARRAY LEFT simple-type RIGHT OF type-declaration-define
+  ARRAY LEFT simple-type RIGHT OF type-declaration-define { last_decl_type = ARRAY_TYPE;  }
 ;
 
 recorde-type:
@@ -248,8 +257,8 @@ name-string-list:
 ;
 
 name-list:
-  name-list COMMA ID    {printf("NameList: %s\n", id_copy);guarda_var();}
-| ID                    {printf("NameList: %s\n", id_copy);guarda_var();}
+  name-list COMMA ID    {guarda_var();}
+| ID                    {guarda_var();}
 ;
 
 
@@ -261,9 +270,10 @@ string-list-val:
 simple-type:
   INTEGER       { last_decl_type = INT_TYPE;  }
 | REAL          { last_decl_type = REAL_TYPE; }
-| CHAR          { last_decl_type = CHAR_TYPE; }
-| STRING        { last_decl_type = STR_TYPE;  }   
-| ID            { last_decl_type = INT_TYPE;  }
+| CHAR          { last_decl_type = STR_TYPE;  }
+| STRING        { last_decl_type = STR_TYPE;  }
+| BOOLEAN       { last_decl_type = BOOL_TYPE; }
+| ID            
 | LPAR name-list RPAR
 | constants DOT DOT constants
 | MINUS constants DOT DOT constants
@@ -350,9 +360,9 @@ statement:
 ;
 
 assign-statement:
-  ID {check_var();} ASSIGN expression
-| ID {check_var();}  LEFT expression RIGHT ASSIGN expression
-| ID {check_var();} DOT ID ASSIGN expression
+  ID { $1 = check_var(); } ASSIGN expression                        { check_assign($1, $4); }
+| ID { $1 = check_var(); } LEFT expression RIGHT ASSIGN expression  { check_assign_array($1, $7); }
+| ID { $1 = check_var(); } DOT ID ASSIGN expression
 ;
 
 proc-id-statement:
@@ -361,7 +371,7 @@ proc-id-statement:
 ;
 
 if-statement:
-  IF expression THEN statement else-statement
+  IF expression THEN statement else-statement  { check_bool_expr("if", $2); }
 ;
 
 else-statement:
@@ -370,7 +380,7 @@ else-statement:
 ;
 
 repeat-statement:
-  REPEAT statement-list UNTIL expression
+  REPEAT statement-list UNTIL expression  { check_bool_expr("repeat", $4); }
 ;
 
 while-statement:
@@ -405,41 +415,40 @@ goto-statement:
 ;
 
 expression:
-  expression MOREQ expr
-| expression MT expr
-| expression LOREQ expr
-| expression LT expr
-| expression NOTEQ expr
-| expression EQ expr
+  expression MOREQ expr   { $$ = unify_bin_op($1, $3, ">=", unify_comp); }
+| expression MT expr      { $$ = unify_bin_op($1, $3, ">", unify_comp); }
+| expression LOREQ expr   { $$ = unify_bin_op($1, $3, "<=", unify_comp); }
+| expression LT expr      { $$ = unify_bin_op($1, $3, "<", unify_comp); }
+| expression NOTEQ expr   { $$ = unify_bin_op($1, $3, "<>", unify_comp); }
+| expression EQ expr      { $$ = unify_bin_op($1, $3, "=", unify_comp); }
 | expr
 ;
 
 expr:
-  expr PLUS term
-| expr MINUS term
-| expr OR term
-| expr MOD term
-| expr DIV term
+  expr PLUS term          { $$ = unify_bin_op($1, $3, "+", unify_plus); }
+| expr MINUS term         { $$ = unify_bin_op($1, $3, "-", unify_other_arith); }
+| expr OR term            { $$ = check_logical_op($1, $3, "OR"); }
+| expr MOD term           { $$ = check_int_div_op($1, $3, "MOD"); }
+| expr DIV term           { $$ = check_int_div_op($1, $3, "DIV"); }
 | expr IN term
 | term 
 ;
 
 term:
-  term TIMES factor
-| term OVER factor
-| term AND factor
+  term TIMES factor        { $$ = unify_bin_op($1, $3, "*", unify_other_arith); }
+| term OVER factor         { $$ = unify_bin_op($1, $3, "/", unify_other_arith); }
+| term AND factor          { $$ = check_logical_op($1, $3, "AND"); }
 | factor
 ;
 
 factor:
-  ID {check_var();}
-| ID {check_var();} LPAR list-args RPAR
+  ID { $$ = check_var(); }
+| ID { $$ = check_var(); } LPAR list-args RPAR 
 | constants 
-| LPAR expression RPAR
-| NOT factor
-| MINUS factor
-| ID {check_var();}  LEFT expression RIGHT
-| ID {check_var();}  DOT ID
+| LPAR expression RPAR  { $$ = $2; }
+| NOT factor   {$$ = check_not_op($2, "NOT");}
+| ID { $$ = check_var(); }  LEFT expression RIGHT
+| ID { $$ = check_var(); }  DOT ID
 ;
 
 list-args:
@@ -525,22 +534,56 @@ Type unify_bin_op(Type l, Type r,
     return unif;
 }
 
+Type check_logical_op(Type l, Type r, const char* cmd) {
+    if (l == BOOL_TYPE && r == BOOL_TYPE){
+        return BOOL_TYPE;
+    }
+    printf("SEMANTIC ERROR (%d): logical expression for operator '%s', LHS is '%s' and RHS is '%s'.\n",
+           yylineno, cmd, get_text(l), get_text(r));
+    exit(EXIT_FAILURE);
+}
+
+Type check_not_op(Type l, const char* cmd){
+    if (l == BOOL_TYPE){
+      return BOOL_TYPE;
+    }
+    printf("SEMANTIC ERROR (%d): expression '%s', is '%s' instead of '%s'.\n",
+           yylineno, cmd, get_text(l), get_text(BOOL_TYPE));
+    exit(EXIT_FAILURE);
+}
+
+Type check_int_div_op(Type l, Type r, const char* cmd) {
+    if (l == INT_TYPE && r == INT_TYPE){
+        return INT_TYPE;
+    }
+    printf("SEMANTIC ERROR (%d): integer division expression for operator '%s', LHS is '%s' and RHS is '%s'.\n",
+           yylineno, cmd, get_text(l), get_text(r));
+    exit(EXIT_FAILURE);   
+}
+
 void check_assign(Type l, Type r) {
-    if (l == CHAR_TYPE && r != CHAR_TYPE) type_error(":=", l, r);
+    if (l == BOOL_TYPE && r != BOOL_TYPE) type_error(":=", l, r);
     if (l == STR_TYPE  && r != STR_TYPE)  type_error(":=", l, r);
     if (l == INT_TYPE  && r != INT_TYPE)  type_error(":=", l, r);
     if (l == REAL_TYPE && !(r == INT_TYPE || r == REAL_TYPE)) type_error(":=", l, r);
+    if (l == ARRAY_TYPE  && r != ARRAY_TYPE)  type_error(":=", l, r);
 }
 
-void check_bool_expr(const char* cmd, Type t) {
-    if (t != CHAR_TYPE) {
-        printf("SEMANTIC ERROR (%d): conditional expression in '%s' is '%s' instead of '%s'.\n",
-           yylineno, cmd, get_text(t), get_text(CHAR_TYPE));
+void check_assign_array(Type l, Type r) {
+    if (l == ARRAY_TYPE  && r != INT_TYPE) {
+        printf("SEMANTIC ERROR (%d): incompatible types for operator ':=', LHS is '%s (int)' and RHS is '%s'.\n",
+           yylineno, get_text(l), get_text(r));
         exit(EXIT_FAILURE);
     }
 }
 
-
+void check_bool_expr(const char* cmd, Type t) {
+    if (t != BOOL_TYPE) {
+        printf("SEMANTIC ERROR (%d): conditional expression in '%s' is '%s' instead of '%s'.\n",
+           yylineno, cmd, get_text(t), get_text(BOOL_TYPE));
+        exit(EXIT_FAILURE);
+    }
+}
 
 int main() {
     stk = create_str_stack();
@@ -551,6 +594,7 @@ int main() {
     yyparse();
     printf("PARSE SUCCESSFUL!\n");
     free_str_stack(stk);
+    free_str_stack(stk_unica);
 
     printf("\n\n");
     print_str_table(st); printf("\n\n");

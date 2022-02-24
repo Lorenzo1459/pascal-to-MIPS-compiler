@@ -1,14 +1,16 @@
 program ifelseChecking;
 var
-   a, b, c : integer;
-   d : string;
+   v : string;
+   b, c : real;
+   a, d : integer;
 
 begin
-   a := 100;
-   c := 200;
-   if( a < 200 ) then
-     b := a + 3
+   //v := 'ola' + 'boleano';
+   b := 5;
+   a := 2 div 3;
+   if ((a > 0) AND (d < 10)) then
+     c := a + 3
    else
-     b := c;
+     b := d;
 
 end.

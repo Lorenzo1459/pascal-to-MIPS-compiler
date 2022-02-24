@@ -74,6 +74,7 @@ char        \'[.]\'
 {A}{S}{M}                                    { process_token(ASM); }
 {B}{E}{G}{I}{N}                              { process_token(BEGIN_RW); }
 {B}{R}{E}{A}{K}                              { process_token(BREAK); }
+{B}{O}{O}{L}{E}{A}{N}                        { process_token(BOOLEAN); }
 {C}{A}{S}{E}                                 { process_token(CASE); }
 {C}{O}{N}{S}{T}                              { process_token(CONST); }
 {C}{O}{N}{S}{T}{R}{U}{C}{T}{O}{R}            { process_token(CONSTRUCTOR); }
@@ -128,7 +129,8 @@ char        \'[.]\'
 {R}{E}{A}{L}                                 { process_token(REAL); }
 {C}{H}{A}{R}                                 { process_token(CHAR); }
 {S}{T}{R}{I}{N}{G}                           { process_token(STRING); }
-
+{T}{R}{U}{E}                                 { process_token(TRUE); }
+{F}{A}{L}{S}{E}                              { process_token(FALSE); }
 
 "<=" { process_token(LOREQ); }
 ">=" { process_token(MOREQ); }

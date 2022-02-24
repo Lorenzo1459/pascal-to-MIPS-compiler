@@ -14,7 +14,7 @@ begin
     f := a mod b;
     g := a div b;
 
-    if ( a = b ) then
+    if ( a < b ) then
       i := true
     else
       i := false;
