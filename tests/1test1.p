@@ -13,7 +13,7 @@ var
 	b : real;
 	c : real;
 
-function maximo(num1, num2: char): string;
+function maximo(num1, num2: integer): integer;
 var
   resultado : integer;
 begin
@@ -34,7 +34,7 @@ begin
 end;
 
 begin
-	a := 4.0;
+	a := 4 + 1;
 	b := 001;
 	c := 1;
 	max(a,b);

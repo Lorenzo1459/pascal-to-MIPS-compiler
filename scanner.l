@@ -12,6 +12,7 @@
 
 #include "types.h"
 #include "tables.h"
+#include "ast.h"
 #include "parser.h"
 
 #define ID_SIZE 64
@@ -129,8 +130,8 @@ char        \'[.]\'
 {R}{E}{A}{L}                                 { process_token(REAL); }
 {C}{H}{A}{R}                                 { process_token(CHAR); }
 {S}{T}{R}{I}{N}{G}                           { process_token(STRING); }
-{T}{R}{U}{E}                                 { process_token(TRUE); }
-{F}{A}{L}{S}{E}                              { process_token(FALSE); }
+{T}{R}{U}{E}                                 { yylval = new_node(BOOL_VAL_NODE, 1, BOOL_TYPE); process_token(TRUE); }
+{F}{A}{L}{S}{E}                              { yylval = new_node(BOOL_VAL_NODE, 0, BOOL_TYPE);process_token(FALSE); }
 
 "<=" { process_token(LOREQ); }
 ">=" { process_token(MOREQ); }
@@ -165,10 +166,15 @@ char        \'[.]\'
 ";"	{ process_token(SEMI); }
 
 
-{num}+                                       { process_token(INTEGER_VAL); }
-{num}+"."{num}+                              { process_token(REAL_VAL); }
-{char}                                       { process_token(CHAR_VAL); }
-{string}                                     { add_string(st, yytext); process_token(STRING_VAL); }
+{num}+                                       { yylval = new_node(INT_VAL_NODE, atoi(yytext), INT_TYPE);
+                                               process_token(INTEGER_VAL); }
+{num}+"."{num}+                              { yylval = new_node(REAL_VAL_NODE, 0, REAL_TYPE);
+                                               set_float_data(yylval, (float) atof(yytext));
+                                               process_token(REAL_VAL); }
+{char}                                       { yylval = new_node(STR_VAL_NODE, add_string(st, yytext), STR_TYPE);
+                                               process_token(CHAR_VAL); }
+{string}                                     { yylval = new_node(STR_VAL_NODE, add_string(st, yytext), STR_TYPE);
+                                               process_token(STRING_VAL); }
 {alpha}{alphanum}*                           { process_id(); process_token(ID); }
 
             /* Be sure to keep this as the last rule */

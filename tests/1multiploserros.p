@@ -5,7 +5,7 @@ eh um //comentario
 comentario*)
 type
 	letra_minuscula = 'a'..'z';
-	days = array [1..10]  letra_minuscula;
+	days = array [1..10] letra_minuscula;   
 	fees = real;
 var
 	a : real;{ comentario //comentariodentro

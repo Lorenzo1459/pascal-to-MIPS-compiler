@@ -6,5 +6,4 @@ var
   scatman : sTrInG;
 begin
   scatman := 'ski ba bop ba dop bop';
-  writeln(scatman); //Comentario de uma linha
 end.

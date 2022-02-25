@@ -2,7 +2,7 @@ program funcao;
 var
   a, b, max : integer;
 
-function maximo(num1, num2: char): string;
+function maximo(num1, num2: integer): integer;
 var
   resultado : integer;
 begin

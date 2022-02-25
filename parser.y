@@ -9,26 +9,31 @@
 #include <stdlib.h>
 #include "types.h"
 #include "tables.h"
+#include "ast.h"
 #include "parser.h"
 
 int yylex(void);
 int yylex_destroy(void);
 void yyerror(char const *s);
 
-Type check_var();
-void new_var(StrStack *p_st);
+AST* check_var();
+AST* new_var(StrStack *p_st);
 void guarda_var();
 void guarda_var_unica();
 
-Type unify_bin_op(Type l, Type r,
-                  const char* op, Type (*unify)(Type,Type));
+AST* unify_bin_node(AST* l, AST* r,
+                    NodeKind kind, const char* op, Unif (*unify)(Type,Type));
 
-void check_assign(Type l, Type r);
+AST* check_assign(AST *l, AST *r);
+AST* check_if_then(AST *e, AST *b);
+AST* check_if_then_else(AST *e, AST *b1, AST *b2);
+AST* check_repeat(AST *b, AST *e);
+
 void check_bool_expr(const char* cmd, Type t);
-Type check_logical_op(Type l, Type r, const char* cmd);
-Type check_int_div_op(Type l, Type r, const char* cmd);
-Type check_not_op(Type l, const char* cmd);
-void check_assign_array(Type l, Type r);
+AST* check_logical_op(AST*  l, AST*  r, NodeKind kind, const char* cmd);
+AST* check_int_div_op(AST*  l, AST*  r, NodeKind kind, const char* cmd);
+AST* check_not_op(AST* l, NodeKind kind, const char* cmd);
+void check_assign_array(AST* l, AST* r);
 
 extern char *yytext;
 extern int yylineno;
@@ -39,12 +44,13 @@ VarTable *vt;
 StrStack *stk;
 StrStack *stk_unica;
 
-int count = 0;
+//int count = 0;
 
 Type last_decl_type;
+AST *root;
 %}
 
-%define api.value.type {Type}
+%define api.value.type {AST*}
 
 %token ABSOLUTE
 %token AND
@@ -161,73 +167,77 @@ Type last_decl_type;
 %%
 
 program:
-  PROGRAM ID SEMI block DOT
+  PROGRAM ID SEMI block DOT  //{ root = new_subtree(PROGRAM_NODE, NO_TYPE, 1, $3); }
 ;
 
 block:
-  block-head block-body
+  block-head block-body      { root = new_subtree(PROGRAM_NODE, NO_TYPE, 2, $1, $2); }
 ;
 
 sub-block:
-  block-head block-body
+  block-head block-body      { $$ = new_subtree(BLOCK_NODE, NO_TYPE, 2, $1, $2); }
 ;
 
 block-head:
-  label-declaration constant-declaration type-declaration variable-declaration proc-and-func-declaration
+  label-declaration 
+  constant-declaration 
+  type-declaration 
+  variable-declaration 
+  proc-and-func-declaration   { $$ = new_subtree(BLOCK_HEAD_NODE, NO_TYPE, 5, $1, $2, $3, $4, $5); }
 ;
 
 block-body:
-  compound-statement
+  compound-statement          { $$ = $1;}
 ;
 
 label-declaration: 
-  LABEL name-string-list SEMI
-| %empty
+  LABEL name-string-list SEMI     { $$ = $2;}
+| %empty                          { $$ = new_subtree(LABEL_LIST_NODE, NO_TYPE, 0); }
 ;
 
 constant-declaration:
-  CONST constant-expression-list
-| %empty
+  CONST constant-expression-list  { $$ = $2;}
+| %empty                          { $$ = new_subtree(CONST_LIST_NODE, NO_TYPE, 0); }
 ;
 
 type-declaration:
-  TYPE type-declaration-list
-| %empty
+  TYPE type-declaration-list      { $$ = $2;}
+| %empty                          { $$ = new_subtree(TYPE_LIST_NODE, NO_TYPE, 0); }
 ;
 
 variable-declaration:
-  VAR var-declaration-list
-| %empty
+  VAR var-declaration-list        { $$ = $2; }
+| %empty                          { $$ = new_subtree(VAR_LIST_NODE, NO_TYPE, 0); }
 ;
 
 constant-expression-list:
-  constant-expression-list ID EQ constants SEMI
-| ID EQ constants SEMI
+  constant-expression-list ID EQ constants SEMI   { $$ = new_subtree(CONST_LIST_NODE, NO_TYPE, 2, $1, $4); }
+| ID EQ constants SEMI                            { $$ = $3; }
 ;
 
 constants:
-  INTEGER_VAL    { $$ = INT_TYPE;  }
-| REAL_VAL       { $$ = REAL_TYPE; }
-| CHAR_VAL       { $$ = STR_TYPE;  }
-| TRUE           { $$ = BOOL_TYPE; }
-| FALSE          { $$ = BOOL_TYPE; }
-| STRING_VAL     { $$ = STR_TYPE;  }
+  INTEGER_VAL    { $$ = $1; }
+| REAL_VAL       { $$ = $1; }
+| CHAR_VAL       { $$ = $1; }
+| TRUE           { $$ = $1; }
+| FALSE          { $$ = $1; }
+| STRING_VAL     { $$ = $1; }
 ;
 
 type-declaration-list:
-  type-declaration-list type-define
-| type-define
+  type-declaration-list type-define   { add_child($1, $2); $$ = $1; }
+| type-define                         { $$ = new_subtree(TYPE_LIST_NODE, NO_TYPE, 1, $1); }
 ;
 
 type-define: 
-  ID EQ type-declaration-define SEMI
+  ID EQ type-declaration-define SEMI  { $$ = new_subtree(TYPE_LIST_NODE, NO_TYPE, 1, $3); }
 ;
 
 type-declaration-define:
-  simple-type  
-| structured-type  
-| recorde-type 
-| set-type
+  simple-type       {$$ = $1;}
+| structured-type   {$$ = $1;}
+| recorde-type      {$$ = $1;}
+| set-type          {$$ = $1;}
 ;
 
 structured-type:
@@ -252,19 +262,18 @@ set-type:
 ;
 
 name-string-list:
-  name-list
-| string-list-val
+  name-list          {$$ = $1;}
+| string-list-val    {$$ = $1;}
 ;
 
 name-list:
-  name-list COMMA ID    {guarda_var();}
-| ID                    {guarda_var();}
+  name-list COMMA ID    {guarda_var(); $$ = $1;}
+| ID                    {guarda_var(); $$ = $1; }
 ;
 
-
 string-list-val:
-  string-list-val COMMA INTEGER_VAL
-| INTEGER_VAL
+  string-list-val COMMA INTEGER_VAL   {$$ = $1;}
+| INTEGER_VAL                         {$$ = $1;}
 ;
 
 simple-type:
@@ -282,12 +291,12 @@ simple-type:
 ;
 
 var-declaration-list:
-  var-declaration-list var-define
-| var-define
+  var-declaration-list var-define   { add_child($1, $2); $$ = $1; }
+| var-define                        { $$ = new_subtree(VAR_LIST_NODE, NO_TYPE, 1, $1); }
 ;
 
 var-define:
-  name-list TWO_DOT type-declaration-define {new_var(stk);} SEMI
+  name-list TWO_DOT type-declaration-define {$$ = new_var(stk);} SEMI { $$ = $4;}
 ;
 
 proc-and-func-declaration:
@@ -295,7 +304,7 @@ proc-and-func-declaration:
 | proc-and-func-declaration procedure-declaration-list
 | function-declaration-list
 | procedure-declaration-list
-| %empty
+| %empty                               { $$ = new_subtree(PROC_FUNC_LIST_NODE, NO_TYPE, 0); }
 ;
 
 function-declaration-list:
@@ -303,7 +312,7 @@ function-declaration-list:
 ;
 
 function-declare:
-  FUNCTION ID {guarda_var_unica();} parameters TWO_DOT simple-type {new_var(stk_unica);}
+  FUNCTION ID {guarda_var_unica();} parameters TWO_DOT simple-type {$$ = new_var(stk_unica);}
 ;
 
 procedure-declaration-list:
@@ -311,11 +320,11 @@ procedure-declaration-list:
 ;
 
 procedure-declare:
-  PROCEDURE ID {guarda_var_unica();} parameters {new_var(stk_unica);}
+  PROCEDURE ID {guarda_var_unica();} parameters {$$ = new_var(stk_unica);}
 ;
 
 parameters:
-  LPAR parameters-declare {new_var(stk);} RPAR
+  LPAR parameters-declare {$$ = new_var(stk);} RPAR
 | %empty
 ;
 
@@ -334,24 +343,24 @@ parameters-var-list:
 ;
 
 compound-statement:
-  BEGIN_RW statement-list END
+  BEGIN_RW statement-list END { $$ = $2; }
 ;
 
 statement-list:
-  statement-list  statement SEMI 
-| statement SEMI 
+  statement-list statement SEMI { add_child($1, $2); $$ = $1; }
+| statement SEMI                { $$ = new_subtree(BLOCK_NODE, NO_TYPE, 1, $1); }
 ;
 
 label-statement:
-  assign-statement 
-| proc-id-statement
-| compound-statement
-| if-statement
-| repeat-statement
-| while-statement
-| for-statement
-| case-statement
-| goto-statement
+  assign-statement     { $$ = $1; }
+| proc-id-statement    { $$ = $1; }
+| compound-statement   { $$ = $1; }
+| if-statement         { $$ = $1; }
+| repeat-statement     { $$ = $1; }
+| while-statement      { $$ = $1; }
+| for-statement        { $$ = $1; }
+| case-statement       { $$ = $1; }
+| goto-statement       { $$ = $1; }
 ;
 
 statement:
@@ -360,7 +369,7 @@ statement:
 ;
 
 assign-statement:
-  ID { $1 = check_var(); } ASSIGN expression                        { check_assign($1, $4); }
+  ID { $1 = check_var(); } ASSIGN expression                        { $$ = check_assign($1, $4); }
 | ID { $1 = check_var(); } LEFT expression RIGHT ASSIGN expression  { check_assign_array($1, $7); }
 | ID { $1 = check_var(); } DOT ID ASSIGN expression
 ;
@@ -371,16 +380,12 @@ proc-id-statement:
 ;
 
 if-statement:
-  IF expression THEN statement else-statement  { check_bool_expr("if", $2); }
-;
-
-else-statement:
-  ELSE statement
-| %empty
+  IF expression THEN statement                     { $$ = check_if_then($2, $4); }
+| IF expression THEN statement ELSE statement      { $$ = check_if_then_else($2, $4, $6); }
 ;
 
 repeat-statement:
-  REPEAT statement-list UNTIL expression  { check_bool_expr("repeat", $4); }
+  REPEAT statement-list UNTIL expression           { $$ = check_repeat($2, $4); }
 ;
 
 while-statement:
@@ -415,29 +420,29 @@ goto-statement:
 ;
 
 expression:
-  expression MOREQ expr   { $$ = unify_bin_op($1, $3, ">=", unify_comp); }
-| expression MT expr      { $$ = unify_bin_op($1, $3, ">", unify_comp); }
-| expression LOREQ expr   { $$ = unify_bin_op($1, $3, "<=", unify_comp); }
-| expression LT expr      { $$ = unify_bin_op($1, $3, "<", unify_comp); }
-| expression NOTEQ expr   { $$ = unify_bin_op($1, $3, "<>", unify_comp); }
-| expression EQ expr      { $$ = unify_bin_op($1, $3, "=", unify_comp); }
+  expression MOREQ expr   { $$ = unify_bin_node($1, $3, MOREQ_NODE, ">=", unify_comp); }
+| expression MT expr      { $$ = unify_bin_node($1, $3, MT_NODE,    ">",  unify_comp); }
+| expression LOREQ expr   { $$ = unify_bin_node($1, $3, LOREQ_NODE, "<=", unify_comp); }
+| expression LT expr      { $$ = unify_bin_node($1, $3, LT_NODE,    "<",  unify_comp); }
+| expression NOTEQ expr   { $$ = unify_bin_node($1, $3, NOTEQ_NODE, "<>", unify_comp); }
+| expression EQ expr      { $$ = unify_bin_node($1, $3, EQ_NODE,    "=",  unify_comp); }
 | expr
 ;
 
 expr:
-  expr PLUS term          { $$ = unify_bin_op($1, $3, "+", unify_plus); }
-| expr MINUS term         { $$ = unify_bin_op($1, $3, "-", unify_other_arith); }
-| expr OR term            { $$ = check_logical_op($1, $3, "OR"); }
-| expr MOD term           { $$ = check_int_div_op($1, $3, "MOD"); }
-| expr DIV term           { $$ = check_int_div_op($1, $3, "DIV"); }
+  expr PLUS term          { $$ = unify_bin_node($1, $3, PLUS_NODE,  "+", unify_plus); }
+| expr MINUS term         { $$ = unify_bin_node($1, $3, MINUS_NODE, "-", unify_other_arith); }
+| expr OR term            { $$ = check_logical_op($1, $3, OR_NODE, "OR"); }
+| expr MOD term           { $$ = check_int_div_op($1, $3, MOD_NODE, "MOD"); }
+| expr DIV term           { $$ = check_int_div_op($1, $3, DIV_NODE, "DIV"); }
 | expr IN term
 | term 
 ;
 
 term:
-  term TIMES factor        { $$ = unify_bin_op($1, $3, "*", unify_other_arith); }
-| term OVER factor         { $$ = unify_bin_op($1, $3, "/", unify_other_arith); }
-| term AND factor          { $$ = check_logical_op($1, $3, "AND"); }
+  term TIMES factor        { $$ = unify_bin_node($1, $3, TIMES_NODE, "*", unify_other_arith); }
+| term OVER factor         { $$ = unify_bin_node($1, $3, OVER_NODE,  "/", unify_other_arith); }
+| term AND factor          { $$ = check_logical_op($1, $3, AND_NODE, "AND"); }
 | factor
 ;
 
@@ -446,7 +451,7 @@ factor:
 | ID { $$ = check_var(); } LPAR list-args RPAR 
 | constants 
 | LPAR expression RPAR  { $$ = $2; }
-| NOT factor   {$$ = check_not_op($2, "NOT");}
+| NOT factor   { $$ = check_not_op($2, NOT_NODE, "NOT");}
 | ID { $$ = check_var(); }  LEFT expression RIGHT
 | ID { $$ = check_var(); }  DOT ID
 ;
@@ -465,17 +470,17 @@ void yyerror (char const *s) {
     exit(EXIT_FAILURE);
 }
 
-Type check_var() {
+AST* check_var(){
     int idx = lookup_var(vt, id_copy);
     if (idx == -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' was not declared.\n",
                 yylineno, id_copy);
         exit(EXIT_FAILURE);
     }
-    return get_type(vt, idx);
+    return new_node(VAR_USE_NODE, idx, get_type(vt, idx));
 }
 
-void new_var(StrStack *p_st) {
+AST* new_var(StrStack *p_st) {
     int idx = lookup_var(vt, yytext);
     if (idx != -1) {
         printf("SEMANTIC ERROR (%d): variable '%s' already declared at line %d.\n",
@@ -486,12 +491,15 @@ void new_var(StrStack *p_st) {
     int cont = 0;
     int i = getSize(p_st);
     char * data;
-    while(cont < i){
+    
+    while(cont < i ){
        data = get_string_stack(p_st, cont);
-       add_var(vt, data, yylineno, last_decl_type);
+       idx = add_var(vt, data, yylineno, last_decl_type);
+       new_node(VAR_DECL_NODE, idx, last_decl_type);
        subSize(p_st);
        cont++;
     }
+    return new_node(VAR_DECL_NODE, idx, last_decl_type);
 }
 
 void guarda_var(){
@@ -519,62 +527,114 @@ void guarda_var_unica(){
 
 // Type checking and inference.
 
-void type_error(const char* op, Type t1, Type t2) {
+void type_error(const char* op, Type t1, Type rt) {
     printf("SEMANTIC ERROR (%d): incompatible types for operator '%s', LHS is '%s' and RHS is '%s'.\n",
-           yylineno, op, get_text(t1), get_text(t2));
+           yylineno, op, get_text(t1), get_text(rt));
     exit(EXIT_FAILURE);
 }
 
-Type unify_bin_op(Type l, Type r,
-                  const char* op, Type (*unify)(Type,Type)) {
-    Type unif = unify(l, r);
-    if (unif == NO_TYPE) {
-        type_error(op, l, r);
+AST* create_conv_node(Conv conv, AST *n) {
+    switch(conv) {
+        case B2I:  return new_subtree(B2I_NODE, INT_TYPE,  1, n);
+        case B2R:  return new_subtree(B2R_NODE, REAL_TYPE, 1, n);
+        case B2S:  return new_subtree(B2S_NODE, STR_TYPE,  1, n);
+        case I2R:  return new_subtree(I2R_NODE, REAL_TYPE, 1, n);
+        case I2S:  return new_subtree(I2S_NODE, STR_TYPE,  1, n);
+        case R2S:  return new_subtree(R2S_NODE, STR_TYPE,  1, n);
+        case NONE: return n;
+        default:
+            printf("INTERNAL ERROR: invalid conversion of types!\n");
+            exit(EXIT_FAILURE);
     }
-    return unif;
 }
 
-Type check_logical_op(Type l, Type r, const char* cmd) {
-    if (l == BOOL_TYPE && r == BOOL_TYPE){
-        return BOOL_TYPE;
+AST* unify_bin_node(AST* l, AST* r,
+                    NodeKind kind, const char* op, Unif (*unify)(Type,Type)) {
+    Type lt = get_node_type(l);
+    Type rt = get_node_type(r);
+    Unif unif = unify(lt, rt);
+    if (unif.type == NO_TYPE) {
+        type_error(op, lt, rt);
+    }
+    l = create_conv_node(unif.lc, l);
+    r = create_conv_node(unif.rc, r);
+    return new_subtree(kind, unif.type, 2, l, r);
+}
+
+AST* check_logical_op(AST*  l, AST*  r, NodeKind kind, const char* cmd) {
+    Type lt = get_node_type(l);
+    Type rt = get_node_type(r);
+    if (lt == BOOL_TYPE && rt == BOOL_TYPE){
+        return new_subtree(kind, BOOL_TYPE, 2, lt, rt);
     }
     printf("SEMANTIC ERROR (%d): logical expression for operator '%s', LHS is '%s' and RHS is '%s'.\n",
-           yylineno, cmd, get_text(l), get_text(r));
+           yylineno, cmd, get_text(lt), get_text(rt));
     exit(EXIT_FAILURE);
 }
 
-Type check_not_op(Type l, const char* cmd){
-    if (l == BOOL_TYPE){
-      return BOOL_TYPE;
+AST* check_not_op(AST* l, NodeKind kind, const char* cmd){
+    Type lt = get_node_type(l);
+    if (lt == BOOL_TYPE){
+      return new_subtree(kind, BOOL_TYPE, 1, lt);
     }
     printf("SEMANTIC ERROR (%d): expression '%s', is '%s' instead of '%s'.\n",
-           yylineno, cmd, get_text(l), get_text(BOOL_TYPE));
+           yylineno, cmd, get_text(lt), get_text(BOOL_TYPE));
     exit(EXIT_FAILURE);
 }
 
-Type check_int_div_op(Type l, Type r, const char* cmd) {
-    if (l == INT_TYPE && r == INT_TYPE){
-        return INT_TYPE;
+AST* check_int_div_op(AST*  l, AST*  r, NodeKind kind, const char* cmd) {
+    Type lt = get_node_type(l);
+    Type rt = get_node_type(r);
+    if (lt == INT_TYPE && rt == INT_TYPE){
+        return new_subtree(kind, INT_TYPE, 2, lt, rt);
     }
-    printf("SEMANTIC ERROR (%d): integer division expression for operator '%s', LHS is '%s' and RHS is '%s'.\n",
-           yylineno, cmd, get_text(l), get_text(r));
-    exit(EXIT_FAILURE);   
+    printf("SEMANTIC ERROR (%d): logical expression for operator '%s', LHS is '%s' and RHS is '%s'.\n",
+           yylineno, cmd, get_text(lt), get_text(rt));
+    exit(EXIT_FAILURE);
 }
 
-void check_assign(Type l, Type r) {
-    if (l == BOOL_TYPE && r != BOOL_TYPE) type_error(":=", l, r);
-    if (l == STR_TYPE  && r != STR_TYPE)  type_error(":=", l, r);
-    if (l == INT_TYPE  && r != INT_TYPE)  type_error(":=", l, r);
-    if (l == REAL_TYPE && !(r == INT_TYPE || r == REAL_TYPE)) type_error(":=", l, r);
-    if (l == ARRAY_TYPE  && r != ARRAY_TYPE)  type_error(":=", l, r);
+AST* check_assign(AST *l, AST *r) {
+    Type lt = get_node_type(l);
+    Type rt = get_node_type(r);
+
+    if (lt == BOOL_TYPE && rt != BOOL_TYPE) type_error(":=", lt, rt);
+    if (lt == INT_TYPE  && rt != INT_TYPE)  type_error(":=", lt, rt);
+    if (lt == STR_TYPE  && rt != STR_TYPE)  type_error(":=", lt, rt);
+    if (lt == ARRAY_TYPE  && rt != ARRAY_TYPE)  type_error(":=", lt, rt);
+
+    if (lt == REAL_TYPE) {
+        if (rt == INT_TYPE) {
+            r = create_conv_node(I2R, r);
+        } else if (rt != REAL_TYPE) {
+            type_error(":=", lt, rt);
+        }
+    }    
+    return new_subtree(ASSIGN_NODE, NO_TYPE, 2, l, r); 
 }
 
-void check_assign_array(Type l, Type r) {
-    if (l == ARRAY_TYPE  && r != INT_TYPE) {
+void check_assign_array(AST* l, AST* r) {
+    Type lt = get_node_type(l);
+    Type rt = get_node_type(r);
+    if (lt == ARRAY_TYPE  && rt != INT_TYPE) {
         printf("SEMANTIC ERROR (%d): incompatible types for operator ':=', LHS is '%s (int)' and RHS is '%s'.\n",
-           yylineno, get_text(l), get_text(r));
+           yylineno, get_text(lt), get_text(rt));
         exit(EXIT_FAILURE);
     }
+}
+
+AST* check_if_then(AST *e, AST *b) {
+    check_bool_expr("if", get_node_type(e));
+    return new_subtree(IF_NODE, NO_TYPE, 2, e, b);
+}
+
+AST* check_if_then_else(AST *e, AST *b1, AST *b2) {
+    check_bool_expr("if", get_node_type(e));
+    return new_subtree(IF_NODE, NO_TYPE, 3, e, b1, b2);
+}
+
+AST* check_repeat(AST *b, AST *e) {
+    check_bool_expr("repeat", get_node_type(e));
+    return new_subtree(REPEAT_NODE, NO_TYPE, 2, b, e);
 }
 
 void check_bool_expr(const char* cmd, Type t) {
@@ -600,9 +660,12 @@ int main() {
     print_str_table(st); printf("\n\n");
     print_var_table(vt); printf("\n\n");
 
+    print_dot(root);
+    
     free_str_table(st);
     free_var_table(vt);
 
     yylex_destroy();    // To avoid memory leaks within flex...
+    
     return 0;
 }

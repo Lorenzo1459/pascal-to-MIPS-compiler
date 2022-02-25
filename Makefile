@@ -8,8 +8,8 @@ bison: parser.y
 flex: scanner.l
 	flex scanner.l
 
-gcc: scanner.c parser.c tables.c types.c
-	gcc -Wall -o trabcp2 scanner.c parser.c tables.c types.c
+gcc: scanner.c parser.c tables.c types.c ast.c
+	gcc -Wall -Wconversion -o trabcp2 scanner.c parser.c tables.c types.c ast.c
 
 clean:
-	@rm -f *.o *.output scanner.c parser.h parser.c trabcp2
+	@rm -f *.o *.output scanner.c parser.h parser.c *.dot *.pdf trabcp2
