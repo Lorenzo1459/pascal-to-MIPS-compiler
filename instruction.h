@@ -17,8 +17,8 @@ typedef enum {
   subu,   //$1 = $2 – $3 (unsigned)
   addi,   //$1 = $2 + CONST (signed)
   addiu,  //$1 = $2 + CONST (unsigned)
-  mult,   //LO = (($1 * $2) << 32) >> 32;HI = ($1 * $2) >> 32;
-  DIV,    //LO = $1 / $2     HI = $1 % $2
+  mul,   //LO = (($1 * $2) << 32) >> 32;HI = ($1 * $2) >> 32;
+  dIv,    //LO = $1 / $2     HI = $1 % $2
 
   //Transferencia de Dados
   lw,     //$1 = Memory[$2 + CONST]
@@ -83,7 +83,7 @@ typedef enum {
 }OpCode;
 
 static char* OpStr[] = {
-    "add", "addu", "sub", "subu", "addi", "addiu", "mult", "div",
+    "add", "addu", "sub", "subu", "addi", "addiu", "mul", "div",
     "lw", "lh", "lhu", "lb", "lbu", "sw", "sh", "sb", "lui", "mfhi", "mflo", "mfcZ", "mtcZ", "lwcZ", "swcZ",
     "and", "andi", "or", "ori", "xor", "nor", "slt", "slti", "seq", "sge", "sgt", "sle", "sne",
     "sll", "srl", "sra",
@@ -100,7 +100,7 @@ static int OpCount[] = {
   3,  //subu
   3,  //addi
   3,  //addiu
-  3,  //mult
+  3,  //mul
   3,  //div
   2,  //lw
   2,  //lh

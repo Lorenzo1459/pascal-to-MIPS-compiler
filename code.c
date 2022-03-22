@@ -50,9 +50,9 @@ void backpatch_jump(int next_instr_address, int jump_address){
   code[next_instr_address].o1 = jump_address;
 }
 
-void backpatch_branch(int next_instr_address, int offset) {
-  code[next_instr_address].o2 = offset;
-}
+// void backpatch_branch(int next_instr_address, int offset) {
+//   code[next_instr_address].o2 = offset;
+// }
 
 // ----------------------------------------------------------------------------
 // Prints ---------------------------------------------------------------------
@@ -90,12 +90,6 @@ void dump_program() {
     }
 }
 
-// void dump_str_table() {
-//     int table_size = get_str_table_size(st);
-//     for (int i = 0; i < table_size; i++) {
-//         printf("SSTR %s\n", get_string(st, i));
-//     }
-// }
 
 // ----------------------------------------------------------------------------
 // AST Traversal --------------------------------------------------------------
@@ -117,16 +111,10 @@ int operacao;
 int emit_assign(AST *ast) {
     //int addr = get_data(get_child(ast, 0));
     operacao = 0;
-    int c = get_data(ast);
     int address = get_data(get_child(ast, 0));
     current_addr = address;
     char* name = get_name(vt, address);
-    Type var_type = get_type(vt, c);
-    if (var_type == REAL_TYPE) {
-        emit2_string(la, address, name);
-    } else { // All other types, include ints, bools and strs.
-        emit2_string(la, address, name);
-    }
+    emit2_string(la, address, name);
     AST *r = get_child(ast, 1);
     rec_emit_code(r);
     if(operacao == 0){
@@ -134,35 +122,12 @@ int emit_assign(AST *ast) {
     }else{
         emit2(lw, address+1, address, 1);
     }
-    //new_int_reg();
-    //printf("*** %d ***\n", int_regs_count);
     return -1; // This is not an expression, hence no value to return.
 }
 
-// int emit_assign(AST *ast){
-//   AST *r = get_child(ast, 1);
-//   int x = rec_emit_code(r);
-//   int address = get_data(get_child(ast, 0));
-//   char* name = get_name(vt, address);
-//   int i = new_int_reg()+ address;
-//   emit2_string(la, address+1, name);
-//   emit2(move, address, x, 1);
-//   //printf("Passei");
-//   return -1;
-// }
-
 int emit_eq(AST *ast) {
-    AST *l = get_child(ast, 0);
-    AST *r = get_child(ast, 1);
-    int y = rec_emit_code(l);
-    int z = rec_emit_code(r);
-    int x = new_int_reg();
-    if (get_node_type(r) == REAL_TYPE) { // Could equally test 'l' here.
-        emit3(beq, x, y, z);
-    } else if (get_node_type(r) == INT_TYPE) {
-        emit3(beq, x, y, z);
-    } 
-    return x;
+
+    return -1;
 }
 
 int emit_block(AST* ast) {
@@ -174,95 +139,82 @@ int emit_block(AST* ast) {
 }
 
 int emit_if(AST *ast) {
-    // Code for test.
-    int test_reg = rec_emit_code(get_child(ast, 0));
-    int cond_jump_instr = next_instr;
-    emit2(seq, test_reg, 0, 0); // Leave offset empty now, will be backpatched.
-
-    // Code for TRUE block.
-    int true_branch_start = next_instr;
-    rec_emit_code(get_child(ast, 1)); // Generate TRUE block.
-
-    // Code for FALSE block.
-    int false_branch_start;
-    if (get_child_count(ast) == 3) { // We have an else.
-        // Emit unconditional jump for TRUE block.
-        int uncond_jump_instr = next_instr;
-        emit1(j, 0); // Leave address empty now, will be backpatched.
-        false_branch_start = next_instr;
-        rec_emit_code(get_child(ast, 2)); // Generate FALSE block.
-        // Backpatch unconditional jump at end of TRUE block.
-        backpatch_jump(uncond_jump_instr, next_instr);
-    } else {
-        false_branch_start = next_instr;
-    }
-
-    // Backpatch test.
-    backpatch_branch(cond_jump_instr, false_branch_start - true_branch_start + 1);
-
+    
     return -1; // This is not an expression, hence no value to return.
 }
 
 int emit_int_val(AST *ast) {
-    //int x = new_int_reg();
     int c = get_data(ast);
-    //printf("%d passei , %d\n", x, c);
     emit2(li, current_addr+1, c, 0);
     return current_addr;
 }
 
 int emit_lt(AST *ast) {
-    AST *l = get_child(ast, 0);
-    AST *r = get_child(ast, 1);
-    int y = rec_emit_code(l);
-    int z = rec_emit_code(r);
-    int x = new_int_reg();
-    emit3(slt, x, y, z);
-    return x;
+    
+    return -1;
 }
 
 int emit_mt(AST *ast) {
-    AST *l = get_child(ast, 0);
-    AST *r = get_child(ast, 1);
-    int y = rec_emit_code(l);
-    int z = rec_emit_code(r);
-    int x = new_int_reg();
-    emit3(slt, x, z, y);
-    return x;
+    
+    return -1;
 }
 
 int emit_moreq(AST* ast) {
-    //fazer depois
-    return -1; //mudar
+
+    return -1;
 }
 
 
 int emit_minus(AST *ast) {
-    int x;
-    int y = rec_emit_code(get_child(ast, 0));
-    int z = rec_emit_code(get_child(ast, 1));
-    if (get_node_type(ast) == REAL_TYPE) {
-        x = new_float_reg();
-        emit3(sub, x, y, z);
-    } else {
-        x = new_int_reg();
-        emit3(sub, x, y, z);
-    }
-    return x;
+  int y = get_data(get_child(ast, 0));
+  int z = get_data(get_child(ast, 1));
+
+  char* name = get_name(vt, y);
+  char* name2 = get_name(vt, z);
+  char* name3 = get_name(vt, current_addr);
+
+  emit2_string(la, y, name);
+  emit2_string(la, z, name2);
+  emit2(lw, y, y, 1);
+  emit2(lw, z, z, 1);
+  emit3(sub, z, y, z);
+  emit2_string(la, y, name3);
+  emit2(sw, z, y, 1);
+  emit2_string(la, y, name);
+  emit2(sw, z, y, 1);
+
+  operacao = 1;
+
+  y = rec_emit_code(get_child(ast, 0));
+  z = rec_emit_code(get_child(ast, 1));
+
+  return current_addr;
 }
 
 int emit_over(AST *ast) {
-    int x;
-    int y = rec_emit_code(get_child(ast, 0));
-    int z = rec_emit_code(get_child(ast, 1));
-    if (get_node_type(ast) == REAL_TYPE) {
-        x = new_float_reg();
-        emit3(DIV, x, y, z);
-    } else {
-        x = new_int_reg();
-        emit3(DIV, x, y, z);
-    }
-    return x;
+  int y = get_data(get_child(ast, 0));
+  int z = get_data(get_child(ast, 1));
+
+  char* name = get_name(vt, y);
+  char* name2 = get_name(vt, z);
+  char* name3 = get_name(vt, current_addr);
+
+  emit2_string(la, y, name);
+  emit2_string(la, z, name2);
+  emit2(lw, y, y, 1);
+  emit2(lw, z, z, 1);
+  emit3(dIv, z, y, z);
+  emit2_string(la, y, name3);
+  emit2(sw, z, y, 1);
+  emit2_string(la, y, name);
+  emit2(sw, z, y, 1);
+
+  operacao = 1;
+
+  y = rec_emit_code(get_child(ast, 0));
+  z = rec_emit_code(get_child(ast, 1));
+
+  return current_addr;
 }
 
 int emit_plus(AST *ast) {
@@ -283,13 +235,7 @@ int emit_plus(AST *ast) {
     emit2(sw, z, y, 1);
     emit2_string(la, y, name);
     emit2(sw, z, y, 1);
-    //current_addr = z;
     operacao = 1;
-
-    //char* name3 = get_name(vt, current_addr);
-    //emit2_string(la, current_addr, name3);
-    //emit2(sw, current_addr, y, 1);
-    //emit2_string(la, z, name2);
 
     y = rec_emit_code(get_child(ast, 0));
     z = rec_emit_code(get_child(ast, 1));
@@ -304,48 +250,48 @@ int emit_program(AST *ast) {
 }
 
 int emit_real_val(AST *ast) {
-    //int x = new_float_reg();
-    // We need to read as an int because the TM cannot handle floats directly.
-    // But we have a float stored in the AST, so we just read it as an int
-    // and magically we have a float encoded as an int... :P
-    int c = get_data(ast);
-    emit2(li, c+1, c, 0);
-    return c;
+
+    return -1;
 }
 
-
-//
 int emit_repeat(AST *ast) {
-    int begin_repeat = next_instr;
-    rec_emit_code(get_child(ast, 0)); // Emit code for body.
-    int test_reg = rec_emit_code(get_child(ast, 1)); // Emit code for test.
-    emit2(li, test_reg, begin_repeat - next_instr, 0);
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
 int emit_str_val(AST *ast) {
-    int x = new_int_reg();
-    int c = get_data(ast);
-    emit2(li, x, c, 0);
-    return x;
+
+    return -1;
 }
 
 int emit_times(AST *ast) {
-    int x;
-    int y = rec_emit_code(get_child(ast, 0));
-    int z = rec_emit_code(get_child(ast, 1));
-    if (get_node_type(ast) == REAL_TYPE) {
-        x = new_float_reg();
-        emit3(mult, x, y, z);
-    } else {
-        x = new_int_reg();
-        emit3(mult, x, y, z);
-    }
-    return x;
+
+  int y = get_data(get_child(ast, 0));
+  int z = get_data(get_child(ast, 1));
+
+  char* name = get_name(vt, y);
+  char* name2 = get_name(vt, z);
+  char* name3 = get_name(vt, current_addr);
+
+  emit2_string(la, y, name);
+  emit2_string(la, z, name2);
+  emit2(lw, y, y, 1);
+  emit2(lw, z, z, 1);
+  emit3(mul, z, y, z);
+  emit2_string(la, y, name3);
+  emit2(sw, z, y, 1);
+  emit2_string(la, y, name);
+  emit2(sw, z, y, 1);
+  operacao = 1;
+
+  y = rec_emit_code(get_child(ast, 0));
+  z = rec_emit_code(get_child(ast, 1));
+
+  return current_addr;
 }
 
 int emit_var_decl(AST *ast) {
-    // Nothing to do here.
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
@@ -360,17 +306,17 @@ int emit_var_list(AST *ast) {
 }
 
 int emit_labellist(AST *ast) {
-    // Nothing to do here.
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
 int emit_constlist(AST *ast) {
-    // Nothing to do here.
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
 int emit_typelist(AST *ast) {
-    // Nothing to do here.
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
@@ -391,80 +337,59 @@ int emit_blockhead(AST *ast) {
 }
 
 int emit_procfunclist(AST *ast) {
-    // Nothing to do here.
+
     return -1;  // This is not an expression, hence no value to return.
 }
 
 int emit_var_use(AST *ast) {
-    // int addr = get_data(ast);
-    // int x = new_int_reg();
-    // emit2(li, x, addr, 0);
-    // return x;
+
     return -1;
 }
 
 
-//Daqui para baixo esperar juntar.
 int emit_i2r(AST* ast) {
-    int i = rec_emit_code(get_child(ast, 0));
-    int r = new_int_reg();
-    emit2(I2R, r, i, 0);
-    return r;
+
+    return -1;
 }
 
 int emit_i2s(AST* ast) {
-    int x = new_int_reg();
-    int y = rec_emit_code(get_child(ast, 0));
-    emit2(I2S, x, y, 0);
-    return x;
+
+    return -1;
 }
 
 int emit_r2s(AST* ast) {
-    int x = new_int_reg();
-    int y = rec_emit_code(get_child(ast, 0));
-    emit2(R2S, x, y, 0);
-    return x;
+
+    return -1;
 }
 
 int emit_noteq(AST* ast) {
-  //fazer depois
+
   return -1; //mudar
 }
 
 int emit_or(AST* ast){
-    int x = new_int_reg();
-    int y = rec_emit_code(get_child(ast, 0));
-    int z = rec_emit_code(get_child(ast, 1));
-    emit3(or, x, y, z);
-    return x;
+
+    return -1;
 }
 
 int emit_mod(AST* ast){
-    //fazer depois
+
     return -1; //mudar
 }
 
 int emit_div(AST* ast){
-    //fazer depois
+
     return -1; //mudar
 }
 
 int emit_and(AST* ast){
-  int x = new_int_reg();
-  int y = rec_emit_code(get_child(ast, 0));
-  int z = rec_emit_code(get_child(ast, 1));
-  emit3(and, x, y, z);
-  return x;
+
+  return -1;
 }
 
 int emit_not(AST* ast){
-  AST *l = get_child(ast, 0);
-  AST *r = get_child(ast, 1);
-  int y = rec_emit_code(l);
-  int z = rec_emit_code(r);
-  int x = new_int_reg();
-  emit3(sne, x, y, z);
-  return x;
+
+  return -1;
 }
 
 int emit_write(AST *ast) {
@@ -472,7 +397,6 @@ int emit_write(AST *ast) {
     int address = get_data(get_child(ast, 0));
     AST* r = get_child(ast, 0);
     Type var_type = get_node_type(r);
-    //printf("%s\n", get_text(var_type));
     if (var_type == STR_TYPE){
         char buffer[100];
         snprintf(buffer, 100, "Str%d", address);
@@ -481,7 +405,6 @@ int emit_write(AST *ast) {
         emit2(li, -3, 4, 0);
         emit0(syscall);
     }else {
-        //current_addr = address;
         char* name = get_name(vt, address);
         emit2_string(la, address, name);
         emit2(lw, -1, address, 1);
@@ -490,7 +413,6 @@ int emit_write(AST *ast) {
     }
     return -1;  // This is not an expression, hence no value to return.
 }
-
 
 int rec_emit_code(AST *ast) {
     //printf("%d\n", get_kind(ast));
@@ -543,8 +465,6 @@ void emit_code(AST *ast) {
     next_instr = 0;
     int_regs_count = 0;
     float_regs_count = 0;
-    //dump_str_table();
     rec_emit_code(ast);
-    //emit0(HALT);
     dump_program();
 }

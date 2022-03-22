@@ -1,6 +1,8 @@
 program funcao;
 var
-  a, b, max : integer;
+  a : integer;
+  b : integer;
+  max : integer;
 
 function maximo(num1, num2: integer): integer;
 var

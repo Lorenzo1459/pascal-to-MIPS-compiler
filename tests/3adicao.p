@@ -6,8 +6,8 @@ var
    d: integer;
 begin
    a := 10;
-   b := 5;
-   c := 20;
-   d := a + b + c;  
-   writeln(d);  
+   b := 20;
+   c := 5;
+   d := a + b + c;
+   writeln(d);
 end.
