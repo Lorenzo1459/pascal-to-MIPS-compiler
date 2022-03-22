@@ -133,6 +133,8 @@ char        \'[.]\'
 {T}{R}{U}{E}                                 { yylval = new_node(BOOL_VAL_NODE, 1, BOOL_TYPE); process_token(TRUE); }
 {F}{A}{L}{S}{E}                              { yylval = new_node(BOOL_VAL_NODE, 0, BOOL_TYPE);process_token(FALSE); }
 
+{W}{R}{I}{T}{E}{L}{N}                        { process_token(WRITE); }
+
 "<=" { process_token(LOREQ); }
 ">=" { process_token(MOREQ); }
 ":=" { process_token(ASSIGN); }

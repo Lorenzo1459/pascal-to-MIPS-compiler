@@ -3,7 +3,7 @@ var
    a: integer;
    b: integer;
 begin
-   a := 10;
+   a := 5;
    repeat
       a := a + 1;    
    until (a >= 10);

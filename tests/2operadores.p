@@ -24,7 +24,7 @@ begin
     m := 'oi' + 'teste';
     n := 1 + 'teste';
 
-    o[i] := 1 +10;
+    o[i] := 1 + 10;
     t := o;
 
 end.

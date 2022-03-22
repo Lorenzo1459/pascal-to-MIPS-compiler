@@ -32,7 +32,7 @@ typedef enum {
     VAR_DECL_NODE,
     VAR_LIST_NODE,
     VAR_USE_NODE,
-    //WRITE_NODE,
+    WRITE_NODE,
 
     LABEL_LIST_NODE,
     CONST_LIST_NODE,

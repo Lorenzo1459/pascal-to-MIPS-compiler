@@ -43,6 +43,11 @@ char *get_string(StrTable *st, int i)
     return st->t[i];
 }
 
+int get_str_table_size(StrTable* st) {
+    return st->size;
+}
+
+
 void print_str_table(StrTable *st)
 {
     printf("Strings table:\n");

@@ -11,6 +11,7 @@
 #include "tables.h"
 #include "ast.h"
 #include "parser.h"
+#include "code.h"
 
 int yylex(void);
 int yylex_destroy(void);
@@ -153,6 +154,8 @@ AST *root;
 %token TRUE
 %token FALSE
 %token STRING_VAL
+
+%token WRITE
 
 // Precedence of operators.
 // All operators are left associative.
@@ -361,11 +364,16 @@ label-statement:
 | for-statement        { $$ = $1; }
 | case-statement       { $$ = $1; }
 | goto-statement       { $$ = $1; }
+| writeln-statement    { $$ = $1; }
 ;
 
 statement:
   label-statement
 | INTEGER_VAL TWO_DOT label-statement  
+;
+
+writeln-statement:
+  WRITE expression            { $$ = new_subtree(WRITE_NODE, NO_TYPE, 1, $2); }
 ;
 
 assign-statement:
@@ -660,7 +668,8 @@ int main() {
     print_str_table(st); printf("\n\n");
     print_var_table(vt); printf("\n\n");
 
-    print_dot(root);
+    print_dot(root); printf("\n\n");
+    emit_code(root);
     
     free_str_table(st);
     free_var_table(vt);

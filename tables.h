@@ -23,6 +23,9 @@ int add_string(StrTable* st, char* s);
 // Returns a pointer to the string stored at index 'i'.
 char* get_string(StrTable* st, int i);
 
+// Returns the current table size.
+int get_str_table_size(StrTable* st);
+
 // Prints the given table to stdout.
 void print_str_table(StrTable* st);
 

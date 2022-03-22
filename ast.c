@@ -129,7 +129,7 @@ char* kind2str(NodeKind kind) {
         case VAR_DECL_NODE: return "var_decl";
         case VAR_LIST_NODE: return "var_list";
         case VAR_USE_NODE:  return "var_use";
-        //case WRITE_NODE:    return "write";
+        case WRITE_NODE:    return "write";
 
         case LABEL_LIST_NODE: return "label_list";
         case CONST_LIST_NODE: return "const_list";
